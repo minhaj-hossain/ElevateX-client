@@ -1,26 +1,56 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer utilities {
+  /* Headings get Archivo Narrow */
+  .font-headline-lg,
+  .font-headline-sm {
+    font-family: var(--font-archivo-narrow), sans-serif;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Body text and labels get Inter */
+  .font-body-md,
+  .font-label-lg,
+  .font-label-md {
+    font-family: var(--font-inter), sans-serif;
+  }
+
+  .glass-panel {
+    background: rgba(30, 30, 30, 0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .input-glow:focus {
+    box-shadow: 0 0 15px rgba(223, 255, 0, 0.2);
+  }
+
+  .volt-gradient-text {
+    background: linear-gradient(to right, #dfff00, #00daf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .kinetic-border {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kinetic-border::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #dfff00;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+  }
+
+  .kinetic-border:focus-within::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
 }
