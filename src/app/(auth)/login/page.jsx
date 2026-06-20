@@ -4,13 +4,36 @@ import React from "react";
 import { motion } from "framer-motion";
 import { FiMail, FiLock } from "react-icons/fi";
 import { GiBottledBolt } from "react-icons/gi";
+import { authClient } from "@/lib/auth-client";
 
 export default function Login() {
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
     console.log("Form Submitted:", { email, password });
+
+    await authClient.signIn.email(
+      {
+        email,
+        password,
+        callbackURL: "/",
+        /**
+         * remember the user session after the browser is closed.
+         * @default true
+         */
+        rememberMe: true,
+      },
+      {
+        onSuccess: (ctx) => {
+          //redirect to the dashboard or sign in page
+          console.log("success");
+        },
+        onError: (ctx) => {
+          alert(ctx.error.message);
+        },
+      },
+    );
   };
 
   return (

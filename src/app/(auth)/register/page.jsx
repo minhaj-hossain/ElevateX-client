@@ -13,45 +13,80 @@ import {
 import { GiBottledBolt } from "react-icons/gi";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
+// 1 line: Import your reusable utility block
+import { uploadImageToImgBB } from "@/utils/uploadImage";
+import { authClient } from "@/lib/auth-client";
+
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState("");
+  const [avatarFile, setAvatarFile] = useState(null);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setAvatarFile(file);
       setSelectedFileName(file.name);
     } else {
+      setAvatarFile(null);
       setSelectedFileName("");
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     const fullName = e.target.elements["full-name"].value;
     const email = e.target.elements.email.value;
     const password = e.target.elements.password.value;
-    const avatarFile = e.target.elements["avatar-file"].files[0];
 
-    console.log("Form Submitted:", {
-      fullName,
-      email,
-      password,
-      avatarFile: avatarFile ? avatarFile.name : "None selected",
-    });
+    try {
+      // 2 lines: Reusably call your utility loop and receive the final destination URL
+      const finalUploadedUrl = await uploadImageToImgBB(avatarFile);
+      if (avatarFile && !finalUploadedUrl)
+        throw new Error("Image upload pipeline dropped.");
 
-    setTimeout(() => {
+      console.log("Form Submitted to Database:", {
+        fullName,
+        email,
+        password,
+        image: finalUploadedUrl || "No image uploaded",
+      });
+
+      await authClient.signUp.email(
+        {
+          email,
+          password,
+          name: fullName,
+          image: finalUploadedUrl,
+          role: "user",
+        },
+        {
+          onSuccess: (ctx) => {
+            //redirect to the dashboard or sign in page
+            console.log("success");
+          },
+          onError: (ctx) => {
+            // display the error message
+            alert(ctx.error.message);
+          },
+        },
+      );
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1500);
+    } catch (error) {
+      console.error("Critical execution pipeline error:", error);
+      alert("Registration failed during media provisioning.");
       setIsLoading(false);
-      alert("Welcome to the elite. Account initialization sequence complete.");
-    }, 2000);
+    }
   };
 
   return (
     <div className="bg-[#131313] text-[#e5e2e1] antialiased overflow-x-hidden min-h-screen relative font-sans">
-      {/* Background Hero Layer */}
       <div className="fixed inset-0 z-0">
         <div
           className="w-full h-full bg-cover bg-center scale-105"
@@ -62,7 +97,6 @@ export default function Register() {
         <div className="absolute inset-0 bg-linear-to-t from-[#131313] via-[#131313]/60 to-transparent" />
       </div>
 
-      {/* Main Content Canvas */}
       <main className="relative z-10 min-h-screen flex items-center justify-center px-5 md:px-10 py-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -70,7 +104,6 @@ export default function Register() {
           transition={{ duration: 0.7, ease: "easeOut" }}
           className="w-full max-w-120"
         >
-          {/* Brand Identity Header */}
           <div className="flex flex-col items-center mb-8">
             <h1 className="text-3xl md:text-5xl font-bold tracking-tighter italic uppercase text-[#d2f000]">
               Elevate
@@ -83,9 +116,7 @@ export default function Register() {
             </p>
           </div>
 
-          {/* Registration Card Container */}
           <div className="bg-[#1e1e1e]/70 backdrop-blur-xl border border-white/10 rounded-xl p-8 md:p-10 shadow-2xl relative overflow-hidden group">
-            {/* Subtle glow effect */}
             <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#d2f000]/10 rounded-full blur-3xl group-hover:bg-[#d2f000]/20 transition-colors duration-500" />
 
             <div className="relative z-10">
@@ -97,9 +128,7 @@ export default function Register() {
               </p>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Responsive Split Fields */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Full Name Field */}
                   <div className="space-y-2 relative border-b border-transparent focus-within:border-[#dfff00] transition-colors duration-300">
                     <label
                       className="text-xs font-semibold text-[#c6c9ab] uppercase ml-1"
@@ -120,7 +149,6 @@ export default function Register() {
                     </div>
                   </div>
 
-                  {/* Local Image Upload Field */}
                   <div className="space-y-2 relative border-b border-transparent focus-within:border-[#dfff00] transition-colors duration-300">
                     <label
                       className="text-xs font-semibold text-[#c6c9ab] uppercase ml-1"
@@ -129,7 +157,6 @@ export default function Register() {
                       Profile Avatar
                     </label>
                     <div className="relative">
-                      {/* Hidden Real Native Input */}
                       <input
                         className="hidden"
                         id="avatar-file"
@@ -138,7 +165,6 @@ export default function Register() {
                         accept="image/*"
                         onChange={handleFileChange}
                       />
-                      {/* Stylized Trigger Button */}
                       <label
                         htmlFor="avatar-file"
                         className="w-full bg-[#0e0e0e] rounded-lg py-4 pl-12 pr-4 text-left transition-all placeholder:text-[#353534] cursor-pointer flex items-center group/file focus-within:ring-2 focus-within:ring-[#d2f000]/30 border-none"
@@ -154,7 +180,6 @@ export default function Register() {
                   </div>
                 </div>
 
-                {/* Email Field */}
                 <div className="space-y-2 relative border-b border-transparent focus-within:border-[#dfff00] transition-colors duration-300">
                   <label
                     className="text-xs font-semibold text-[#c6c9ab] uppercase ml-1"
@@ -175,7 +200,6 @@ export default function Register() {
                   </div>
                 </div>
 
-                {/* Password Field */}
                 <div className="space-y-2 relative border-b border-transparent focus-within:border-[#dfff00] transition-colors duration-300">
                   <label
                     className="text-xs font-semibold text-[#c6c9ab] uppercase ml-1"
@@ -207,7 +231,6 @@ export default function Register() {
                   </div>
                 </div>
 
-                {/* Terms Checkbox Field */}
                 <div className="flex items-start gap-3 pt-2">
                   <input
                     className="mt-1 rounded bg-[#0e0e0e] border-none text-[#d2f000] focus:ring-0 focus:outline-none w-4 h-4 cursor-pointer"
@@ -238,9 +261,8 @@ export default function Register() {
                   </label>
                 </div>
 
-                {/* Create Account Button */}
                 <button
-                  className="w-full bg-[#d2f000] text-[#191e00] font-semibold py-4 rounded-lg mt-4 flex items-center justify-center gap-2 hover:bg-[#00e0ff] active:scale-[0.98] transition-all group overflow-hidden relative disabled:opacity-70"
+                  className="w-full bg-[#d2f000] text-[#191e00] font-semibold py-4 rounded-lg mt-4 flex items-center justify-center gap-2 hover:bg-[#00e0ff] active:scale-[0.98] transition-all group overflow-hidden relative disabled:opacity-70 cursor-pointer"
                   type="submit"
                   disabled={isLoading}
                 >
@@ -261,7 +283,6 @@ export default function Register() {
                 </button>
               </form>
 
-              {/* Login Link Redirect */}
               <div className="mt-8 text-center">
                 <p className="text-sm text-[#c6c9ab]">
                   Already have an account?
