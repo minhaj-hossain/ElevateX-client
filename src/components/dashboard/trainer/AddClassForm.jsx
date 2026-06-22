@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { uploadImageToImgBB } from "@/utils/uploadImage";
-import { FaCloudUploadAlt, FaBolt, FaClock } from "react-icons/fa";
+import { FaCloudUploadAlt, FaBolt } from "react-icons/fa";
 import Image from "next/image";
+import { postClass } from "@/lib/actions/classMutation";
+import { authClient } from "@/lib/auth-client";
 
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -17,6 +19,15 @@ export default function AddClassPage() {
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
     );
   };
+
+  const {
+    data: session,
+    isPending, //loading state
+    error, //error object
+    refetch, //refetch the session
+  } = authClient.useSession();
+
+  const trainerId = session?.user?.id;
 
   const handleImagePreview = (file) => {
     if (!file) return;
@@ -57,9 +68,12 @@ export default function AddClassPage() {
         endTime: form.endTime.value,
         image: imageUrl,
         schedule: selectedDays,
+        trainerId: trainerId,
       };
 
-      console.log(classData);
+      const res = await postClass(classData);
+
+      console.log(res);
 
       alert("Class Created Successfully");
 
@@ -76,7 +90,7 @@ export default function AddClassPage() {
 
   return (
     <div className="min-h-screen bg-[#131313] text-white p-4 md:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-full mx-auto">
         {/* HEADER */}
 
         <div className="mb-8">
@@ -132,6 +146,8 @@ export default function AddClassPage() {
                         <option>Cardio</option>
                         <option>Strength</option>
                         <option>HIIT</option>
+                        <option>Mindfulness</option>
+                        <option>Hypertrophy</option>
                       </select>
                     </div>
 

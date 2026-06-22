@@ -43,7 +43,7 @@ export default function TrainerProfile() {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="w-full space-y-8 ml-9"
+      className="w-full space-y-8"
     >
       <MyClassesHeader/>
       {/* PROFILE HEADER CARD */}

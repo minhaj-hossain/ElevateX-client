@@ -4,7 +4,7 @@ import { FiBell, FiHelpCircle, FiSearch } from "react-icons/fi";
 
 const MyClassesHeader = () => {
   return (
-    <div className="bg-[#1C1C1E] h-20 flex items-center justify-between px-8 text-white border-b border-[#313136]">
+    <div className="bg-[#1C1C1E] h-20 flex items-center justify-between px-8 text-white border-b border-[#313136] ">
       {/* Page Title */}
       <h1 className="text-3xl font-extrabold text-[#D2E21D]">My Classes</h1>
 

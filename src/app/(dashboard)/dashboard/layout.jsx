@@ -1,13 +1,15 @@
 import Sidebar from "@/components/dashboard/Sidebar";
 import React from "react";
 
-const DashboardLoyout = ({ children }) => {
+const DashboardLayout = ({ children }) => {
   return (
     <div className="flex">
-      <Sidebar />
-      {children}
+      <div>
+        <Sidebar />
+      </div>
+      <div className="flex-1">{children}</div>
     </div>
   );
 };
 
-export default DashboardLoyout;
+export default DashboardLayout;

@@ -3,9 +3,8 @@ import React from "react";
 
 const TrainerDashboard = () => {
   return (
-    <div className="">
+    <div className=" ">
       <TrainerProfile />
-      this is trainer profile
     </div>
   );
 };

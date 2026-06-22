@@ -29,7 +29,7 @@ export default function Sidebar() {
       },
       {
         label: "My Classes",
-        href: "/dashboard/trainer/classes",
+        href: "/dashboard/trainer/my-classes",
         icon: FiCalendar,
       },
       {
@@ -116,7 +116,7 @@ export default function Sidebar() {
           const Icon = item.icon;
 
           const active =
-            pathname === item.href || pathname.startsWith(item.href + "/");
+            pathname === item.href;
 
           return (
             <Link

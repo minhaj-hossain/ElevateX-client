@@ -20,7 +20,7 @@ export default function Navbar() {
     refetch, //refetch the session
   } = authClient.useSession();
 
-  console.log(session);
+  // console.log(session);
 
   const status = session?.user ? "authenticated" : "unauthenticated";
   const handleLogout = async () => {

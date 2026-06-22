@@ -8,7 +8,7 @@ const TrainerLayout = async ({ children }) => {
   if (!user) return redirect("/login");
   if (user?.role !== "trainer") return redirect("/unauthorized");
 
-  return <div>{children}</div>;
+  return <div className="">{children}</div>;
 };
 
 export default TrainerLayout;
