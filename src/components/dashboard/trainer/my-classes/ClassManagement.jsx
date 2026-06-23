@@ -10,42 +10,39 @@ import {
   HiPlus,
   HiTrash,
 } from "react-icons/hi";
-import {
-  IoFitnessSharp,
-  IoSparklesSharp,
-  IoFlashlightOutline,
-} from "react-icons/io5";
+import { IoFitnessSharp } from "react-icons/io5";
 
 export default function ClassManagement() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const {
-    data: session,
-    isPending, //loading state
-    error, //error object
-    refetch, //refetch the session
-  } = authClient.useSession();
+  // States handling the Delete Modal visibility and tracking target class ID
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedClassId, setSelectedClassId] = useState(null);
 
+  const { data: session } = authClient.useSession();
   const trainerId = session?.user?.id;
 
+  const getData = async () => {
+    if (!trainerId) return;
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/getClasses/${trainerId}`,
+      );
+      const data = await response.json();
+      setClasses(data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const getData = async () => {
-      try {
-        const response = await fetch(`http://localhost:8000/api/getClasses/${trainerId}`);
-        const data = await response.json();
-        setClasses(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     getData();
   }, [trainerId]);
 
-  // Time formatting helper
   const formatTime = (timeStr) => {
     if (!timeStr) return "";
     const [hour, minute] = timeStr.split(":");
@@ -55,11 +52,39 @@ export default function ClassManagement() {
     return `${String(h).padStart(2, "0")}:${minute} ${ampm}`;
   };
 
-  // Dynamically filters classes based on selected filter button
   const filteredClasses = classes.filter((cls) => {
     if (activeFilter === "All") return true;
     return cls.status?.toLowerCase() === activeFilter.toLowerCase();
   });
+
+  // Triggers the modal popup and sets the targeted item tracking ID
+  const openDeleteModal = (id) => {
+    setSelectedClassId(id);
+    setIsModalOpen(true);
+  };
+
+  // Makes API call to backend route to execute clean removal
+  const handleConfirmDelete = async () => {
+    if (!selectedClassId) return;
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/deleteClass/${selectedClassId}`,
+        {
+          method: "DELETE",
+        },
+      );
+      if (response.ok) {
+        // Optimistically update frontend state layout removing the item instantly
+        setClasses((prev) =>
+          prev.filter((item) => item._id !== selectedClassId),
+        );
+        setIsModalOpen(false);
+        setSelectedClassId(null);
+      }
+    } catch (error) {
+      console.error("Error deleting target entity:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -70,10 +95,9 @@ export default function ClassManagement() {
   }
 
   return (
-    <div className="bg-[#0c0c0e] text-zinc-300 p-8 min-h-screen font-sans">
+    <div className="bg-[#0c0c0e] text-zinc-300 p-8 min-h-screen font-sans relative">
       {/* Top Header Controls */}
       <div className="flex justify-between items-center mb-6">
-        {/* Filters */}
         <div className="flex gap-2">
           {["All", "Approved", "Pending"].map((filter) => (
             <button
@@ -90,7 +114,6 @@ export default function ClassManagement() {
           ))}
         </div>
 
-        {/* Create Button */}
         <Link href="/dashboard/trainer/add-class">
           <button className="flex items-center gap-2 bg-[#d4f227] text-black font-semibold px-4 py-2.5 rounded-full text-sm hover:bg-[#c1dd20] transition-colors">
             <HiPlus className="text-lg" />
@@ -118,10 +141,8 @@ export default function ClassManagement() {
                 key={cls._id}
                 className="hover:bg-zinc-900/20 transition-colors"
               >
-                {/* Class Info */}
                 <td className="p-4 pl-6">
                   <div className="flex items-center gap-4">
-                    {/* Fallback styling placeholder using properties from DB dynamically if needed */}
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-zinc-800 border border-zinc-700/50">
                       <IoFitnessSharp className="text-lime-400 text-xl" />
                     </div>
@@ -136,14 +157,12 @@ export default function ClassManagement() {
                   </div>
                 </td>
 
-                {/* Category Badge */}
                 <td className="p-4">
                   <span className="px-3 py-1 rounded-md text-xs font-semibold bg-slate-800 text-slate-300">
-                    {cls.difficulty || "General"}
+                    {cls.category || "General"}
                   </span>
                 </td>
 
-                {/* Schedule Integration */}
                 <td className="p-4">
                   <div className="text-xs font-semibold text-zinc-300">
                     {cls.schedule?.join(", ") || "No Schedule Specified"}
@@ -155,7 +174,6 @@ export default function ClassManagement() {
                   </div>
                 </td>
 
-                {/* Status indicator */}
                 <td className="p-4">
                   <div className="flex items-center gap-1.5 text-xs font-bold">
                     <span
@@ -180,15 +198,22 @@ export default function ClassManagement() {
                   </div>
                 </td>
 
-                {/* Action Buttons */}
                 <td className="p-4 pr-6 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <button className="p-2 bg-zinc-800/60 hover:bg-zinc-700/60 rounded-lg text-zinc-400 hover:text-zinc-200 transition-colors">
-                      <HiPencil size={16} />
-                    </button>
-                    <button className="p-2 bg-zinc-800/60 hover:bg-zinc-700/60 rounded-lg text-zinc-400 hover:text-red-400 transition-colors">
+                    <Link href={`/dashboard/trainer/my-classes/${cls._id}`}>
+                      <button className="p-2 bg-zinc-800/60 hover:bg-zinc-700/60 rounded-lg text-zinc-400 hover:text-zinc-200 transition-colors">
+                        <HiPencil size={16} />
+                      </button>
+                    </Link>
+
+                    {/* Trash Button triggering localized modal state */}
+                    <button
+                      onClick={() => openDeleteModal(cls._id)}
+                      className="p-2 bg-zinc-800/60 hover:bg-zinc-700/60 rounded-lg text-zinc-400 hover:text-red-400 transition-colors"
+                    >
                       <HiTrash size={16} />
                     </button>
+
                     <button className="ml-2 px-4 py-1.5 bg-zinc-800/60 hover:bg-zinc-700/60 text-zinc-200 text-xs font-bold rounded-full border border-zinc-700/40 transition-all">
                       View Students
                     </button>
@@ -218,6 +243,62 @@ export default function ClassManagement() {
           </div>
         </div>
       </div>
+
+      {/* FIXED EXACT DESIGN DELETE MODAL OVERLAY */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-[2px] p-4">
+          <div className="w-full max-w-110 bg-[#161615] border border-white/10 rounded-[28px] p-8 text-center shadow-2xl flex flex-col items-center animate-in fade-in zoom-in-95 duration-150">
+            {/* Warning Icon Container */}
+            <div className="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center mb-6 border border-red-500/20">
+              <svg
+                className="w-6 h-6 text-red-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  pathLength="1"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+
+            <h2 className="text-[26px] font-bold text-white tracking-wide mb-3">
+              Delete Class?
+            </h2>
+
+            <p className="text-[#a4a4a3] text-[14px] leading-relaxed px-2 mb-8">
+              Are you sure you want to delete this class? This action cannot be
+              undone. All registration data and historical records for this
+              session will be permanently removed.
+            </p>
+
+            <div className="w-full space-y-3">
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                className="w-full py-3.5 bg-[#99000a] text-white font-bold text-[15px] rounded-full hover:bg-red-700 transition-colors"
+              >
+                Delete
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setSelectedClassId(null);
+                }}
+                className="w-full py-3.5 bg-transparent border border-white/10 text-white font-bold text-[15px] rounded-full hover:bg-white/5 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
