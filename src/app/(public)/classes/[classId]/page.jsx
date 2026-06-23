@@ -1,0 +1,429 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "react-hot-toast"; // Ensure react-hot-toast or similar is installed
+
+export default function ClassDetailsPage() {
+  const { classId } = useParams();
+  const router = useRouter();
+
+  const { data: session } = authClient.useSession();
+  const userId = session?.user?.id;
+
+  console.log(
+    "Fetching class details for classId:",
+    classId,
+    "and userId:",
+    userId,
+  );
+
+  // Domain States
+  const [classData, setClassData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [hasBooked, setHasBooked] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [selectedSession, setSelectedSession] = useState(null);
+
+  // Load complete layout metrics, booking status, and favorite listings
+  useEffect(() => {
+    if (!classId) return;
+
+    const fetchClassDetails = async () => {
+      try {
+        // 1. Fetch main target class data
+        const res = await fetch(`http://localhost:8000/api/classes/${classId}`);
+        const data = await res.json();
+        setClassData(data);
+
+        // Pre-select first available session if present
+        if (data?.sessions?.length > 0) {
+          setSelectedSession(data.sessions[0].id || 0);
+        }
+
+        // 2. Perform conditional validations if a user session is active
+        if (userId) {
+          // Check if already booked
+          const bookingRes = await fetch(
+            `http://localhost:8000/api/bookings/check?userId=${userId}&classId=${classId}`,
+          );
+          const bookingData = await bookingRes.json();
+          setHasBooked(bookingData.isBooked);
+
+          // Check if already in favorites list
+          const favoriteRes = await fetch(
+            `http://localhost:8000/api/favorites/check?userId=${userId}&classId=${classId}`,
+          );
+          const favoriteData = await favoriteRes.json();
+          setIsFavorite(favoriteData.isFavorite);
+        }
+      } catch (error) {
+        console.error("Error loading class specifications:", error);
+        toast.error("Failed to load class specifications.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClassDetails();
+  }, [classId, userId]);
+
+  // Handle Booking Initiation
+  const handleBooking = async () => {
+    if (!userId) {
+      toast.error("Please login to book a class.");
+      return;
+    }
+
+    // Secondary UI validation block safeguard
+    if (hasBooked) {
+      toast.error("You have already booked this class.");
+      return;
+    }
+
+    // Redirect user to the payments portal with query state contexts
+    router.push(
+      `/payment?classId=${classId}&sessionId=${selectedSession || ""}`,
+    );
+  };
+
+  // Toggle Favorite Collection Records
+  const handleFavoriteToggle = async () => {
+    if (!userId) {
+      toast.error("Please login to save favorites.");
+      return;
+    }
+
+    try {
+      const endpoint = isFavorite ? "remove" : "add";
+      const response = await fetch(
+        `http://localhost:8000/api/favorites/${endpoint}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId, classId }),
+        },
+      );
+
+      if (response.ok) {
+        if (isFavorite) {
+          setIsFavorite(false);
+          toast.success("Removed from your favorites.");
+        } else {
+          setIsFavorite(true);
+          toast.success("Successfully added to your favorites!");
+        }
+      }
+    } catch (error) {
+      console.error("Failed to process favorite synchronization:", error);
+      toast.error("Could not update favorites.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-[#0a0a0c] text-zinc-500 min-h-screen flex items-center justify-center text-xs uppercase font-bold tracking-widest">
+        Loading Class Configurations...
+      </div>
+    );
+  }
+
+  if (!classData) {
+    return (
+      <div className="bg-[#0a0a0c] text-zinc-500 min-h-screen flex items-center justify-center text-sm font-semibold">
+        Target Class Specifications Not Found.
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-[#0a0a0c] text-white min-h-screen font-sans">
+      {/* Banner Backdrop Section Header */}
+      <div className="relative h-110 w-full bg-zinc-950">
+        {classData.image && (
+          <Image
+            src={classData.image}
+            alt={classData.className || "Class Image"}
+            fill
+            priority
+            className="object-cover opacity-80"
+          />
+        )}
+        <div className="absolute inset-0 bg-linear-to-t from-[#0a0a0c] via-transparent to-black/40" />
+
+        {/* Absolute Badges */}
+        <div className="absolute bottom-8 left-12 flex gap-2">
+          <span className="bg-[#c4e42a] text-black text-[11px] font-black px-3 py-1 rounded uppercase tracking-wider">
+            {classData.intensity || "High Intensity"}
+          </span>
+          <span className="bg-zinc-800 text-zinc-300 text-[11px] font-bold px-3 py-1 rounded uppercase tracking-wider border border-zinc-700/50">
+            {classData.level || "Advanced"}
+          </span>
+        </div>
+        <div className="absolute bottom-16 left-12">
+          <h1 className="text-4xl font-black uppercase tracking-tight text-white mb-1">
+            {classData.className}
+          </h1>
+          <p className="text-zinc-400 text-xs font-medium max-w-xl">
+            {classData.shortTagline ||
+              "A premium journey into athletic optimization and deep somatic development."}
+          </p>
+        </div>
+      </div>
+
+      {/* Main Breakdown Split Context Container Grid */}
+      <div className="px-12 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Side Content Parameters Area */}
+        <div className="lg:col-span-2 space-y-10">
+          {/* Trainer Card Badge Grid Block */}
+          <div className="bg-[#121214] border border-zinc-800/60 rounded-xl p-5 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full relative overflow-hidden bg-zinc-900 border border-[#c4e42a]">
+              {classData.trainerImage && (
+                <Image
+                  src={classData.trainerImage}
+                  alt={item.trainerName || "Trainer"}
+                  fill
+                  className="object-cover"
+                />
+              )}
+            </div>
+            <div>
+              <span className="block text-sm font-black text-white">
+                {classData.trainerName || 'Marcus "The Hammer" Thorne'}
+              </span>
+              <span className="block text-[11px] text-zinc-500 font-semibold uppercase tracking-wider">
+                {classData.trainerRole || "Lead Performance Coach"} •{" "}
+                {classData.trainerExperience || "12 Years Experience"}
+              </span>
+            </div>
+          </div>
+
+          {/* Detailed Experience Rich Text Description Layout */}
+          <div>
+            <h4 className="text-xs font-black uppercase tracking-widest text-zinc-500 italic mb-3">
+              The Experience
+            </h4>
+            <p className="text-zinc-400 text-sm leading-relaxed font-medium">
+              {classData.description}
+            </p>
+          </div>
+
+          {/* Pillars Highlights Specifications Cards List */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {(
+              classData.pillars || [
+                {
+                  title: "Explosive Power Generation",
+                  desc: "Master the physics of rapid force production.",
+                },
+                {
+                  title: "Neurological Conditioning",
+                  desc: "Enhance your CNS response time for better reaction.",
+                },
+                {
+                  title: "Advanced Periodization",
+                  desc: "Learn how to cycle intensity for peak performance.",
+                },
+                {
+                  title: "Mobility Under Load",
+                  desc: "Strengthen your end-range of motion safely.",
+                },
+              ]
+            ).map((pillar, idx) => (
+              <div
+                key={idx}
+                className="bg-[#121214] border border-zinc-800/40 p-5 rounded-xl flex gap-3.5"
+              >
+                <span className="text-[#c4e42a] text-sm font-bold shrink-0 mt-0.5">
+                  ✓
+                </span>
+                <div>
+                  <h5 className="text-white text-xs font-bold mb-1">
+                    {pillar.title}
+                  </h5>
+                  <p className="text-zinc-500 text-[11px] leading-normal">
+                    {pillar.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Interactive Scheduling Interactive Checkboxes Area List Component */}
+          <div>
+            <h4 className="text-xs font-black uppercase tracking-widest text-zinc-500 italic mb-4">
+              Upcoming Sessions
+            </h4>
+            <div className="space-y-2">
+              {(
+                classData.sessions || [
+                  {
+                    id: "s1",
+                    day: "MON",
+                    date: "24",
+                    time: "06:00 AM — 07:00 AM",
+                    location: "Main Arena",
+                    slots: "8 Slots Left",
+                  },
+                  {
+                    id: "s2",
+                    day: "WED",
+                    date: "26",
+                    time: "05:30 PM — 06:30 PM",
+                    location: "Performance Lab",
+                    slots: "3 Slots Left",
+                  },
+                ]
+              ).map((sessionItem) => (
+                <div
+                  key={sessionItem.id}
+                  onClick={() => setSelectedSession(sessionItem.id)}
+                  className={`border p-4 rounded-xl flex items-center justify-between cursor-pointer transition-all ${
+                    selectedSession === sessionItem.id
+                      ? "bg-zinc-900 border-[#c4e42a]"
+                      : "bg-[#121214] border-zinc-800/40 hover:border-zinc-800"
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="bg-[#19191c] border border-zinc-800 rounded-lg px-3 py-1.5 text-center flex flex-col items-center justify-center min-w-13">
+                      <span className="text-[9px] font-extrabold tracking-wider text-zinc-500 uppercase">
+                        {sessionItem.day}
+                      </span>
+                      <span className="text-base font-black text-[#c4e42a] leading-none mt-0.5">
+                        {sessionItem.date}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="block text-xs font-bold text-white">
+                        {sessionItem.time}
+                      </span>
+                      <span className="block text-[11px] text-zinc-500">
+                        {sessionItem.location} • {sessionItem.slots}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center pr-2">
+                    <div
+                      className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                        selectedSession === sessionItem.id
+                          ? "border-[#c4e42a]"
+                          : "border-zinc-700"
+                      }`}
+                    >
+                      {selectedSession === sessionItem.id && (
+                        <div className="w-2 h-2 bg-[#c4e42a] rounded-full" />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side Sidebar Conversion Control Column Area Panel */}
+        <div className="space-y-6">
+          {/* Main Action Invoice Conversions Card Frame */}
+          <div className="bg-[#121214] border border-zinc-800/60 rounded-2xl p-6 space-y-6">
+            <div className="flex justify-between items-baseline border-b border-zinc-800/40 pb-4">
+              <span className="text-xs uppercase font-extrabold tracking-wider text-zinc-400">
+                Single Class
+              </span>
+              <div className="text-right">
+                <span className="text-xl font-black text-[#c4e42a]">
+                  ${classData.price || "45.00"}
+                </span>
+                <span className="text-zinc-500 text-[11px] font-medium block">
+                  / Per Session
+                </span>
+              </div>
+            </div>
+
+            {/* Metrics Range Level Bar Display UI Element */}
+            <div>
+              <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-1.5">
+                <span>Class Intensity Level</span>
+                <span className="text-zinc-300">
+                  {classData.intensityValue || "Elite"}
+                </span>
+              </div>
+              <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden">
+                <div
+                  className="bg-linear-to-r from-teal-400 to-[#c4e42a] h-full rounded-full"
+                  style={{ width: "85%" }}
+                />
+              </div>
+            </div>
+
+            {/* Form Validation Reactive Functional Buttons Element Controls Container */}
+            <div className="space-y-2.5 pt-2">
+              <button
+                onClick={handleBooking}
+                disabled={hasBooked}
+                className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-colors ${
+                  hasBooked
+                    ? "bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700/20"
+                    : "bg-[#c4e42a] hover:bg-[#b0cd23] text-black"
+                }`}
+              >
+                {hasBooked ? "Already Booked" : "⚡ Book Now"}
+              </button>
+
+              <button
+                onClick={handleFavoriteToggle}
+                className="w-full py-3 bg-transparent hover:bg-white/5 border border-zinc-800 text-zinc-200 hover:text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2"
+              >
+                <span>
+                  {isFavorite ? "♥ Saved to Favorites" : "♡ Add to Favorites"}
+                </span>
+              </button>
+            </div>
+
+            {/* Structural Prerequisites Explicit Field Alerts Component */}
+            <div className="border-t border-zinc-800/40 pt-4 space-y-2">
+              <span className="block text-[10px] uppercase font-black tracking-widest text-zinc-500">
+                Requirements
+              </span>
+              <ul className="space-y-1.5 text-zinc-400 text-[11px] font-medium">
+                <li className="flex items-start gap-2">
+                  <span className="text-zinc-600">⚠️</span>{" "}
+                  {classData.reqOne || "Prior lifting experience (6+ months)"}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-zinc-600">👟</span>{" "}
+                  {classData.reqTwo || "Training footwear required"}
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* About The Trainer Description Text Frame Area */}
+          <div className="bg-[#121214] border border-zinc-800/40 rounded-2xl p-6 space-y-4">
+            <span className="block text-[10px] uppercase font-black tracking-widest text-zinc-500">
+              About the Trainer
+            </span>
+            <p className="text-zinc-400 text-xs italic leading-relaxed">
+              &quot;
+              {classData.trainerQuote ||
+                "Success is a byproduct of relentless preparation and disciplined execution."}
+              &quot;
+            </p>
+            <div className="text-[11px] space-y-2 pt-1 border-t border-zinc-800/20">
+              <div>
+                <span className="block font-bold text-zinc-300">
+                  Bio & Qualifications
+                </span>
+                <span className="text-zinc-500">
+                  {classData.trainerBio ||
+                    "Ex-National Weightlifting Coach, Specialist in Biomechanics and Power Dynamics."}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

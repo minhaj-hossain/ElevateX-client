@@ -1,5 +1,6 @@
 import { Inter, Archivo_Narrow } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
 
 // Configure Inter (replacing Geist Sans for body text)
 const inter = Inter({
@@ -28,6 +29,7 @@ export default function RootLayout({ children }) {
     >
       <body className="min-h-full flex flex-col bg-[#131313] text-[#e5e2e1]">
         {children}
+        <Toaster />
       </body>
     </html>
   );

@@ -18,10 +18,14 @@ export default function ForumManagement() {
   const { data: session } = authClient.useSession();
   const trainerId = session?.user?.id;
 
-  // Fetch only this trainer's posts
+
   useEffect(() => {
     const fetchTrainerPosts = async () => {
-      if (!trainerId) return;
+      // If session is checked and no user id is found, stop loading
+      if (!trainerId) {
+        return;
+      }
+
       try {
         const response = await fetch(
           `http://localhost:8000/api/getTrainerPosts/${trainerId}`,
@@ -35,32 +39,47 @@ export default function ForumManagement() {
       }
     };
 
-    fetchTrainerPosts();
-  }, [trainerId]);
-
+    // Only turn off loading once the authClient session finishes resolving
+    if (trainerId) {
+      fetchTrainerPosts();
+    } else if (session === null) {
+      // Session resolved but user is unauthenticated
+      setLoading(false);
+    }
+  }, [trainerId, session]);
+  
   const openDeleteModal = (id) => {
     setSelectedPostId(id);
     setIsModalOpen(true);
   };
 
-  const handleConfirmDelete = async () => {
-    if (!selectedPostId) return;
+  // 1. Update your handleDelete function to close the modal on success:
+  const handleDelete = async (postId) => {
+    // if (!postId) return;
+    console.log(postId);
     try {
       const response = await fetch(
-        `http://localhost:8000/api/deletePost/${selectedPostId}`,
+        `http://localhost:8000/api/deletePost/${postId}`,
         {
           method: "DELETE",
         },
       );
+
       if (response.ok) {
-        setPosts((prev) => prev.filter((post) => post._id !== selectedPostId));
+        // Remove from UI state immediately
+        setPosts((prevPosts) =>
+          prevPosts.filter((post) => post._id !== postId),
+        );
+        // Close modal and reset tracking state
         setIsModalOpen(false);
         setSelectedPostId(null);
       }
     } catch (error) {
-      console.error("Error deleting post:", error);
+      console.error("Failed to delete item:", error);
     }
   };
+
+  console.log("Posts state:", posts);
 
   if (loading) {
     return (
@@ -267,7 +286,7 @@ export default function ForumManagement() {
             <div className="w-full space-y-3">
               <button
                 type="button"
-                onClick={handleConfirmDelete}
+                onClick={() => handleDelete(selectedPostId)}
                 className="w-full py-3.5 bg-[#99000a] text-white font-bold text-[15px] rounded-full hover:bg-red-700 transition-colors"
               >
                 Delete
