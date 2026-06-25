@@ -60,6 +60,16 @@ export default function Sidebar() {
         icon: FiCalendar,
       },
       {
+        label: "Apply as Trainer",
+        href: "/dashboard/user/apply-trainer",
+        icon: FiPlusCircle,
+      },
+      {
+        label: "Favorite Classes",
+        href: "/dashboard/user/favorites",
+        icon: FiPlusCircle,
+      },
+      {
         label: "My Profile",
         href: "/dashboard/user/profile",
         icon: FiSettings,

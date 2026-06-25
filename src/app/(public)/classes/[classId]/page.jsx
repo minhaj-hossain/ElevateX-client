@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { authClient } from "@/lib/auth-client";
-import { toast } from "react-hot-toast"; // Ensure react-hot-toast or similar is installed
+import { toast } from "react-hot-toast";
 
 export default function ClassDetailsPage() {
   const { classId } = useParams();
@@ -12,13 +12,7 @@ export default function ClassDetailsPage() {
 
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
-
-  console.log(
-    "Fetching class details for classId:",
-    classId,
-    "and userId:",
-    userId,
-  );
+  const userEmail = session?.user?.email;
 
   // Domain States
   const [classData, setClassData] = useState(null);
@@ -27,7 +21,6 @@ export default function ClassDetailsPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
 
-  // Load complete layout metrics, booking status, and favorite listings
   useEffect(() => {
     if (!classId) return;
 
@@ -51,10 +44,12 @@ export default function ClassDetailsPage() {
           );
           const bookingData = await bookingRes.json();
           setHasBooked(bookingData.isBooked);
+        }
 
-          // Check if already in favorites list
+        if (userEmail) {
+          // Check if already in favorites list using userEmail
           const favoriteRes = await fetch(
-            `http://localhost:8000/api/favorites/check?userId=${userId}&classId=${classId}`,
+            `http://localhost:8000/api/favorites/check?email=${userEmail}&classId=${classId}`,
           );
           const favoriteData = await favoriteRes.json();
           setIsFavorite(favoriteData.isFavorite);
@@ -68,7 +63,7 @@ export default function ClassDetailsPage() {
     };
 
     fetchClassDetails();
-  }, [classId, userId]);
+  }, [classId, userId, userEmail]);
 
   // Handle Booking Initiation
   const handleBooking = async () => {
@@ -77,13 +72,11 @@ export default function ClassDetailsPage() {
       return;
     }
 
-    // Secondary UI validation block safeguard
     if (hasBooked) {
       toast.error("You have already booked this class.");
       return;
     }
 
-    // Redirect user to the payments portal with query state contexts
     router.push(
       `/payment?classId=${classId}&sessionId=${selectedSession || ""}`,
     );
@@ -91,27 +84,28 @@ export default function ClassDetailsPage() {
 
   // Toggle Favorite Collection Records
   const handleFavoriteToggle = async () => {
-    if (!userId) {
+    if (!userEmail) {
       toast.error("Please login to save favorites.");
       return;
     }
 
     try {
-      const endpoint = isFavorite ? "remove" : "add";
       const response = await fetch(
-        `http://localhost:8000/api/favorites/${endpoint}`,
+        `http://localhost:8000/api/favorites/toggle`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId, classId }),
+          body: JSON.stringify({ email: userEmail, classId }),
         },
       );
 
-      if (response.ok) {
-        if (isFavorite) {
+      const data = await response.json();
+
+      if (data.success) {
+        if (data.action === "removed") {
           setIsFavorite(false);
           toast.success("Removed from your favorites.");
-        } else {
+        } else if (data.action === "added") {
           setIsFavorite(true);
           toast.success("Successfully added to your favorites!");
         }
@@ -183,7 +177,7 @@ export default function ClassDetailsPage() {
               {classData.trainerImage && (
                 <Image
                   src={classData.trainerImage}
-                  alt={item.trainerName || "Trainer"}
+                  alt={classData.trainerName || "Trainer"}
                   fill
                   className="object-cover"
                 />
@@ -325,7 +319,6 @@ export default function ClassDetailsPage() {
 
         {/* Right Side Sidebar Conversion Control Column Area Panel */}
         <div className="space-y-6">
-          {/* Main Action Invoice Conversions Card Frame */}
           <div className="bg-[#121214] border border-zinc-800/60 rounded-2xl p-6 space-y-6">
             <div className="flex justify-between items-baseline border-b border-zinc-800/40 pb-4">
               <span className="text-xs uppercase font-extrabold tracking-wider text-zinc-400">
@@ -341,7 +334,6 @@ export default function ClassDetailsPage() {
               </div>
             </div>
 
-            {/* Metrics Range Level Bar Display UI Element */}
             <div>
               <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-1.5">
                 <span>Class Intensity Level</span>
@@ -357,7 +349,6 @@ export default function ClassDetailsPage() {
               </div>
             </div>
 
-            {/* Form Validation Reactive Functional Buttons Element Controls Container */}
             <div className="space-y-2.5 pt-2">
               <button
                 onClick={handleBooking}
@@ -373,15 +364,18 @@ export default function ClassDetailsPage() {
 
               <button
                 onClick={handleFavoriteToggle}
-                className="w-full py-3 bg-transparent hover:bg-white/5 border border-zinc-800 text-zinc-200 hover:text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2"
+                className={`w-full py-3 border font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 ${
+                  isFavorite
+                    ? "bg-red-950/30 border-red-800 text-red-400 hover:bg-red-900/40"
+                    : "bg-transparent border-zinc-800 text-zinc-200 hover:bg-white/5 hover:text-white"
+                }`}
               >
                 <span>
-                  {isFavorite ? "♥ Saved to Favorites" : "♡ Add to Favorites"}
+                  {isFavorite ? "❤️ Saved to Favorites" : "🤍 Add to Favorites"}
                 </span>
               </button>
             </div>
 
-            {/* Structural Prerequisites Explicit Field Alerts Component */}
             <div className="border-t border-zinc-800/40 pt-4 space-y-2">
               <span className="block text-[10px] uppercase font-black tracking-widest text-zinc-500">
                 Requirements
@@ -399,7 +393,6 @@ export default function ClassDetailsPage() {
             </div>
           </div>
 
-          {/* About The Trainer Description Text Frame Area */}
           <div className="bg-[#121214] border border-zinc-800/40 rounded-2xl p-6 space-y-4">
             <span className="block text-[10px] uppercase font-black tracking-widest text-zinc-500">
               About the Trainer
