@@ -10,6 +10,7 @@ export default function ClassDetailsPage() {
   const { classId } = useParams();
   const router = useRouter();
 
+  // The logged-in User session (The buyer purchasing the class)
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
   const userEmail = session?.user?.email;
@@ -26,14 +27,16 @@ export default function ClassDetailsPage() {
 
     const fetchClassDetails = async () => {
       try {
-        // 1. Fetch main target class data
+        // 1. Fetch main target class data created by the trainer
         const res = await fetch(`http://localhost:8000/api/classes/${classId}`);
         const data = await res.json();
         setClassData(data);
 
-        // Pre-select first available session if present
-        if (data?.sessions?.length > 0) {
-          setSelectedSession(data.sessions[0].id || 0);
+        console.log("Fetched class details:", data);
+
+        // Pre-select first available day from schedule string array if present
+        if (data?.schedule?.length > 0) {
+          setSelectedSession(data.schedule[0]);
         }
 
         // 2. Perform conditional validations if a user session is active
@@ -77,9 +80,41 @@ export default function ClassDetailsPage() {
       return;
     }
 
-    router.push(
-      `/payment?classId=${classId}&sessionId=${selectedSession || ""}`,
-    );
+    try {
+      console.log("Initiating booking for:", {
+        classId,
+        sessionId: selectedSession,
+        className: classData?.name,
+        price: classData?.price || "45.00",
+      });
+
+      // Sending Buyer User metadata + Class/Trainer metadata to checkout route
+      const response = await fetch("/api/checkout_sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId, // Logged-in buyer ID
+          userEmail, // Logged-in buyer Email
+          classId,
+          sessionId: selectedSession,
+          price: classData?.price || "45.00",
+          className: classData?.name,
+          trainerName: classData?.trainerName,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.url) {
+        // Redirect the user seamlessly to Stripe Checkout / Payment gateway url
+        router.push(data.url);
+      } else {
+        toast.error(data.error || "Failed to initiate payment session.");
+      }
+    } catch (error) {
+      console.error("Payment session initiation error:", error);
+      toast.error("An error occurred. Please try again.");
+    }
   };
 
   // Toggle Favorite Collection Records
@@ -139,7 +174,7 @@ export default function ClassDetailsPage() {
         {classData.image && (
           <Image
             src={classData.image}
-            alt={classData.className || "Class Image"}
+            alt={classData.name || "Class Image"}
             fill
             priority
             className="object-cover opacity-80"
@@ -150,19 +185,20 @@ export default function ClassDetailsPage() {
         {/* Absolute Badges */}
         <div className="absolute bottom-8 left-12 flex gap-2">
           <span className="bg-[#c4e42a] text-black text-[11px] font-black px-3 py-1 rounded uppercase tracking-wider">
-            {classData.intensity || "High Intensity"}
+            {classData.category || "Fitness"}
           </span>
           <span className="bg-zinc-800 text-zinc-300 text-[11px] font-bold px-3 py-1 rounded uppercase tracking-wider border border-zinc-700/50">
-            {classData.level || "Advanced"}
+            {classData.difficultyLevel || classData.difficulty || "Advanced"}
           </span>
         </div>
         <div className="absolute bottom-16 left-12">
           <h1 className="text-4xl font-black uppercase tracking-tight text-white mb-1">
-            {classData.className}
+            {classData.name}
           </h1>
           <p className="text-zinc-400 text-xs font-medium max-w-xl">
-            {classData.shortTagline ||
-              "A premium journey into athletic optimization and deep somatic development."}
+            {classData.duration
+              ? `${classData.duration} minutes segment session.`
+              : "A premium journey into athletic optimization and deep somatic development."}
           </p>
         </div>
       </div>
@@ -251,62 +287,41 @@ export default function ClassDetailsPage() {
               Upcoming Sessions
             </h4>
             <div className="space-y-2">
-              {(
-                classData.sessions || [
-                  {
-                    id: "s1",
-                    day: "MON",
-                    date: "24",
-                    time: "06:00 AM — 07:00 AM",
-                    location: "Main Arena",
-                    slots: "8 Slots Left",
-                  },
-                  {
-                    id: "s2",
-                    day: "WED",
-                    date: "26",
-                    time: "05:30 PM — 06:30 PM",
-                    location: "Performance Lab",
-                    slots: "3 Slots Left",
-                  },
-                ]
-              ).map((sessionItem) => (
+              {(classData.schedule || []).map((dayName, idx) => (
                 <div
-                  key={sessionItem.id}
-                  onClick={() => setSelectedSession(sessionItem.id)}
+                  key={idx}
+                  onClick={() => setSelectedSession(dayName)}
                   className={`border p-4 rounded-xl flex items-center justify-between cursor-pointer transition-all ${
-                    selectedSession === sessionItem.id
+                    selectedSession === dayName
                       ? "bg-zinc-900 border-[#c4e42a]"
                       : "bg-[#121214] border-zinc-800/40 hover:border-zinc-800"
                   }`}
                 >
                   <div className="flex items-center gap-4">
                     <div className="bg-[#19191c] border border-zinc-800 rounded-lg px-3 py-1.5 text-center flex flex-col items-center justify-center min-w-13">
-                      <span className="text-[9px] font-extrabold tracking-wider text-zinc-500 uppercase">
-                        {sessionItem.day}
-                      </span>
-                      <span className="text-base font-black text-[#c4e42a] leading-none mt-0.5">
-                        {sessionItem.date}
+                      <span className="text-[10px] font-extrabold tracking-wider text-[#c4e42a] uppercase">
+                        {dayName}
                       </span>
                     </div>
                     <div>
                       <span className="block text-xs font-bold text-white">
-                        {sessionItem.time}
+                        {classData.startTime || "15:00"} —{" "}
+                        {classData.endTime || "16:00"}
                       </span>
                       <span className="block text-[11px] text-zinc-500">
-                        {sessionItem.location} • {sessionItem.slots}
+                        Main Arena • Dynamic Slot Allocation
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center pr-2">
                     <div
                       className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                        selectedSession === sessionItem.id
+                        selectedSession === dayName
                           ? "border-[#c4e42a]"
                           : "border-zinc-700"
                       }`}
                     >
-                      {selectedSession === sessionItem.id && (
+                      {selectedSession === dayName && (
                         <div className="w-2 h-2 bg-[#c4e42a] rounded-full" />
                       )}
                     </div>
@@ -338,7 +353,7 @@ export default function ClassDetailsPage() {
               <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-1.5">
                 <span>Class Intensity Level</span>
                 <span className="text-zinc-300">
-                  {classData.intensityValue || "Elite"}
+                  {classData.difficultyLevel || classData.difficulty || "Elite"}
                 </span>
               </div>
               <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden">
