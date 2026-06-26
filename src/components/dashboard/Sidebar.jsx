@@ -88,32 +88,32 @@ export default function Sidebar() {
       },
       {
         label: "Applied Trainers",
-        href: "/dashboard/user/apply-trainer",
+        href: "/dashboard/admin/applied-trainers",
         icon: FiPlusCircle,
       },
       {
         label: "Manage Trainers",
-        href: "/dashboard/user/favorites",
+        href: "/dashboard/admin/manage-trainers",
         icon: FiPlusCircle,
       },
       {
         label: "Manage Classes",
-        href: "/dashboard/user/profile",
+        href: "/dashboard/admin/manage-classes",
         icon: FiSettings,
       },
       {
         label: "Add Forum Post",
-        href: "/dashboard/user/profile",
+        href: "/dashboard/admin/add-forum-post",
         icon: FiSettings,
       },
       {
         label: "Transactions Page",
-        href: "/dashboard/user/profile",
+        href: "/dashboard/admin/transactions",
         icon: FiSettings,
       },
       {
         label: "Forum Post Manage",
-        href: "/dashboard/user/profile",
+        href: "/dashboard/admin/forum-manage",
         icon: FiSettings,
       },
     ],
