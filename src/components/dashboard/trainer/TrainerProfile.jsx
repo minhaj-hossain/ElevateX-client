@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   FiCheckCircle,
@@ -18,9 +18,11 @@ import { GiWeightLiftingUp } from "react-icons/gi";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import Image from "next/image";
 import MyClassesHeader from "./Header";
+import { authClient } from "@/lib/auth-client";
 
 export default function TrainerProfile() {
-  // Stagger configurations for entering grid elements
+
+  const [sessionUser, setSessionUser] = React.useState(null);
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -38,6 +40,14 @@ export default function TrainerProfile() {
     },
   };
 
+  useEffect(() => {
+    const trainerSession = async () => {
+      const { data: sessionData } = await authClient.getSession();
+      if (sessionData?.user) setSessionUser(sessionData.user);
+    };
+    trainerSession();
+  }, []);
+
   return (
     <motion.div
       variants={containerVariants}
@@ -45,7 +55,7 @@ export default function TrainerProfile() {
       animate="visible"
       className="w-full space-y-8"
     >
-      <MyClassesHeader/>
+      <MyClassesHeader />
       {/* PROFILE HEADER CARD */}
       <motion.section variants={itemVariants} className="w-full">
         <div className="glass-card bg-[#1e1e1e]/70 backdrop-blur-3xl border border-white/10 rounded-xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 md:gap-8 relative overflow-hidden group ">
@@ -60,7 +70,7 @@ export default function TrainerProfile() {
                   className="w-full h-full object-cover"
                   alt="Marcus Thorne athletic headshot"
                   fill
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBziQ6Gq5mg0zRG8NLqRhJ4xcy9rvlLQ2AtSXIQbki1dtZ3BY_lOkXEdzOOlX1xDk-bCbJeMWg7A1rxn9L8YkhJQvNaHCsev6p4RGJOtnlNESrrpLDxLWdpAf-aDs_lA9BmiO7Aofe9aNRIzorUraU1M78P2sJnh3ca5hYJU2GZQ0Rvg4se57Y7tstIQ3pnG5ZGyZlHl2WvJIJrSKxfLNKaatlbyTYKqrunYb2SzkI1A_Q81QBEz9cJeRU0u7asUEMI1RiOjwkz4c3y"
+                  src={sessionUser?.image || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80"}
                 />
               </div>
             </div>
@@ -73,14 +83,14 @@ export default function TrainerProfile() {
           <div className="flex-1 text-center md:text-left space-y-3">
             <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3">
               <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white font-display-lg">
-                Marcus &quot;The Hammer&quot; Thorne
+                {sessionUser?.name || "Marcus &quot;The Hammer&quot; Thorne"}
               </h2>
               <span className="bg-[#d2f000] text-[#191e00] px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap">
-                Trainer
+                {sessionUser?.role || "Trainer"}
               </span>
             </div>
             <p className="text-base text-[#c6c9ab] font-medium">
-              marcus@elevatex.fit
+              {sessionUser?.email || "marcus@elevatex.fit"}
             </p>
 
             {/* Meta Tags badges */}

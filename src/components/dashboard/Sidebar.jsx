@@ -75,6 +75,48 @@ export default function Sidebar() {
         icon: FiSettings,
       },
     ],
+    admin: [
+      {
+        label: "Overview",
+        href: "/dashboard/admin",
+        icon: FiGrid,
+      },
+      {
+        label: "Manage Users",
+        href: "/dashboard/user/bookings",
+        icon: FiCalendar,
+      },
+      {
+        label: "Applied Trainers",
+        href: "/dashboard/user/apply-trainer",
+        icon: FiPlusCircle,
+      },
+      {
+        label: "Manage Trainers",
+        href: "/dashboard/user/favorites",
+        icon: FiPlusCircle,
+      },
+      {
+        label: "Manage Classes",
+        href: "/dashboard/user/profile",
+        icon: FiSettings,
+      },
+      {
+        label: "Add Forum Post",
+        href: "/dashboard/user/profile",
+        icon: FiSettings,
+      },
+      {
+        label: "Transactions Page",
+        href: "/dashboard/user/profile",
+        icon: FiSettings,
+      },
+      {
+        label: "Forum Post Manage",
+        href: "/dashboard/user/profile",
+        icon: FiSettings,
+      },
+    ],
   };
 
   // Get menu items based on user role, with fallback
@@ -103,7 +145,7 @@ export default function Sidebar() {
   }
 
   // Now safe to log user role
-  console.log(user.role);
+  // console.log(user.role);
 
   const handleLogout = async () => {
     await authClient.signOut();
@@ -117,7 +159,7 @@ export default function Sidebar() {
         <h1 className="text-3xl font-black tracking-tight text-[#d2f000]">
           ElevateX
         </h1>
-        <p className="text-sm text-[#c6c9ab]">Trainer Portal</p>
+        <p className="text-sm text-[#c6c9ab]">{user.role} Portal</p>
       </div>
 
       {/* Navigation */}
@@ -125,8 +167,7 @@ export default function Sidebar() {
         {menuItems.map((item) => {
           const Icon = item.icon;
 
-          const active =
-            pathname === item.href;
+          const active = pathname === item.href;
 
           return (
             <Link
