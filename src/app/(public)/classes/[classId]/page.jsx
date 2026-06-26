@@ -27,30 +27,27 @@ export default function ClassDetailsPage() {
 
     const fetchClassDetails = async () => {
       try {
-        // 1. Fetch main target class data created by the trainer
+        // 1. Fetch main target class data
         const res = await fetch(`http://localhost:8000/api/classes/${classId}`);
         const data = await res.json();
         setClassData(data);
 
-        console.log("Fetched class details:", data);
-
-        // Pre-select first available day from schedule string array if present
         if (data?.schedule?.length > 0) {
           setSelectedSession(data.schedule[0]);
         }
 
         // 2. Perform conditional validations if a user session is active
-        if (userId) {
+        // CHANGED: Verify using userEmail to match your Express check schema pattern
+        if (userEmail) {
           // Check if already booked
           const bookingRes = await fetch(
-            `http://localhost:8000/api/bookings/check?userId=${userId}&classId=${classId}`,
+            `http://localhost:8000/api/bookings/check?email=${userEmail}&classId=${classId}`,
           );
           const bookingData = await bookingRes.json();
-          setHasBooked(bookingData.isBooked);
-        }
+          // FIXED: Your backend returns 'alreadyBooked', not 'isBooked'
+          setHasBooked(!!bookingData.alreadyBooked);
 
-        if (userEmail) {
-          // Check if already in favorites list using userEmail
+          // Check if already in favorites list
           const favoriteRes = await fetch(
             `http://localhost:8000/api/favorites/check?email=${userEmail}&classId=${classId}`,
           );
@@ -69,9 +66,15 @@ export default function ClassDetailsPage() {
   }, [classId, userId, userEmail]);
 
   // Handle Booking Initiation
+  // Handle Booking Initiation
   const handleBooking = async () => {
     if (!userId) {
       toast.error("Please login to book a class.");
+      return;
+    }
+    // Secure Role Check Execution Guard
+    if (session?.user?.role !== "user") {
+      toast.error("Access Denied: Only users are authorized to book sessions.");
       return;
     }
 
@@ -81,11 +84,20 @@ export default function ClassDetailsPage() {
     }
 
     try {
+      // Clean fallback parameters so undefined values don't pollute the payload
+      const fallbackPrice = classData?.price
+        ? String(classData.price)
+        : "45.00";
+      const fallbackClassName =
+        classData?.name || classData?.title || "Premium Session";
+      const fallbackTrainerName =
+        classData?.trainerName || 'Marcus "The Hammer" Thorne';
+
       console.log("Initiating booking for:", {
         classId,
         sessionId: selectedSession,
-        className: classData?.name,
-        price: classData?.price || "45.00",
+        className: fallbackClassName,
+        price: fallbackPrice,
       });
 
       // Sending Buyer User metadata + Class/Trainer metadata to checkout route
@@ -93,13 +105,13 @@ export default function ClassDetailsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId, // Logged-in buyer ID
-          userEmail, // Logged-in buyer Email
+          userId,
+          userEmail,
           classId,
           sessionId: selectedSession,
-          price: classData?.price || "45.00",
-          className: classData?.name,
-          trainerName: classData?.trainerName,
+          price: fallbackPrice, // Fixed: Guaranteed string/number structure
+          className: fallbackClassName, // Fixed: Checked against undefined loop
+          trainerName: fallbackTrainerName, // Fixed: Passed actual string from UI fallback
         }),
       });
 
@@ -364,31 +376,48 @@ export default function ClassDetailsPage() {
               </div>
             </div>
 
+            {/* Dynamic Action Access Logic Block */}
             <div className="space-y-2.5 pt-2">
-              <button
-                onClick={handleBooking}
-                disabled={hasBooked}
-                className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-colors ${
-                  hasBooked
-                    ? "bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700/20"
-                    : "bg-[#c4e42a] hover:bg-[#b0cd23] text-black"
-                }`}
-              >
-                {hasBooked ? "Already Booked" : "⚡ Book Now"}
-              </button>
+              {session?.user?.role === "user" ? (
+                <>
+                  <button
+                    onClick={handleBooking}
+                    disabled={hasBooked}
+                    className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-colors ${
+                      hasBooked
+                        ? "bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700/20"
+                        : "bg-[#c4e42a] hover:bg-[#b0cd23] text-black"
+                    }`}
+                  >
+                    {hasBooked ? "Already Booked" : "⚡ Book Now"}
+                  </button>
 
-              <button
-                onClick={handleFavoriteToggle}
-                className={`w-full py-3 border font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 ${
-                  isFavorite
-                    ? "bg-red-950/30 border-red-800 text-red-400 hover:bg-red-900/40"
-                    : "bg-transparent border-zinc-800 text-zinc-200 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                <span>
-                  {isFavorite ? "❤️ Saved to Favorites" : "🤍 Add to Favorites"}
-                </span>
-              </button>
+                  <button
+                    onClick={handleFavoriteToggle}
+                    className={`w-full py-3 border font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 ${
+                      isFavorite
+                        ? "bg-red-950/30 border-red-800 text-red-400 hover:bg-red-900/40"
+                        : "bg-transparent border-zinc-800 text-zinc-200 hover:bg-white/5 hover:text-white"
+                    }`}
+                  >
+                    <span>
+                      {isFavorite
+                        ? "❤️ Saved to Favorites"
+                        : "🤍 Add to Favorites"}
+                    </span>
+                  </button>
+                </>
+              ) : (
+                <div className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-3 text-center">
+                  <p className="text-zinc-500 text-[11px] font-semibold uppercase tracking-wider">
+                    🔒 Booking Restricted
+                  </p>
+                  <p className="text-zinc-600 text-[10px] mt-1">
+                    Only accounts registered as standard clients/users can
+                    enroll in active sessions.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="border-t border-zinc-800/40 pt-4 space-y-2">

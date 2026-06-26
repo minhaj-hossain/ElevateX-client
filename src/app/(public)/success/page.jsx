@@ -87,6 +87,8 @@ export default function BookingSuccessPage() {
     paymentMethod: bookingDetails?.paymentMethod || "Card via Stripe Secure",
     amountPaid: getSafeAmount(bookingDetails?.amountPaid),
   };
+  
+  console.log("Booking Record:", record);
 
   return (
     <div className="min-h-screen bg-[#0a0a0c] text-white flex items-center justify-center p-4 md:p-8 font-sans selection:bg-[#c4e42a] selection:text-black">
