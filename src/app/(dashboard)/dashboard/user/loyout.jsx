@@ -6,7 +6,7 @@ const AdminLayout = async ({ children }) => {
   const user = await getUserSession();
 
   if (!user) return redirect("/login");
-  if (user?.role !== "trainer") return redirect("/unauthorized");
+  if (user?.role !== "user") return redirect("/unauthorized");
   return <div>{children}</div>;
 };
 
