@@ -83,7 +83,7 @@ export default function Sidebar() {
       },
       {
         label: "Manage Users",
-        href: "/dashboard/user/bookings",
+        href: "/dashboard/admin/manage-users",
         icon: FiCalendar,
       },
       {
