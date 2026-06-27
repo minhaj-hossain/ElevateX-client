@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🏋️‍♂️ ElevateX — High-Performance Fitness & Gym Management Platform
 
-## Getting Started
+An enterprise-grade, full-stack fitness ecology system designed for gym enthusiasts, certified coaches, and operations managers. **ElevateX** bridges the gap between active lifestyle scheduling, digital community message threads, secure Stripe processing pipelines, and strict administrative moderation control hierarchies.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🌐 Live Infrastructure Anchors
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Production Deployment Gateway (Client):** [https://b13-a10-frontend.vercel.app/](https://b13-a10-frontend.vercel.app/)
+- **System Admin Credentials:**
+  - **Email:** `admin@elevatex.com`
+  - **Password:** `Password123`
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ⚡ Core Architecture Features
 
-## Learn More
+### 👤 Role-Based Authorization Access Layouts (RBAC)
 
-To learn more about Next.js, take a look at the following resources:
+- **User / Member:**
+  - Secure enrollment into public fitness sessions verified through **Better Auth** providers.
+  - One-click submission pipelines for **Trainer Applications** featuring custom administrative feedback view logs.
+  - Personalized watchlist storage dashboards with automated relational duplicate preventative triggers.
+- **Certified Trainer:**
+  - Granular workout programming workflows (Class creation, schedule definitions, pricing indexes).
+  - Live student interactive logs showcasing real-time class attendee matrices via targeted modal lookups.
+  - Self-managed technical forum posting channels accompanied by automated ImgBB image optimization uploads.
+- **Platform Administrator:**
+  - System-wide identity tracking tables with real-time soft-block security flags (suspends write metrics while maintaining read availability).
+  - Class lifecycle workflows (Approve, Reject, or Delete operations on pending trainer configurations).
+  - Financial audit panels monitoring real-time Stripe payment streaming hashes.
+  - Complete forum moderation structures equipped with cascading thread deletion pipelines.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 🧬 Search, Filtering & Core Mechanics
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Server-Side Pattern Parsing:** Uses MongoDB `$regex` expressions to match custom inputs against available class names instantly.
+- **Modular Category Filtering:** Uses `$in` queries to process quick category switches (e.g., Yoga, Cardio, Strength).
+- **Paginated Query Boundaries:** Restricts high-volume community forum feeds through server-side pagination offsets to reduce initial payload overhead.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🛠️ Integrated Dependency Ecosystem
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Frontend Architecture Stack (`Client`)
+
+| Dependency                     | Purpose                                                                                        |
+| :----------------------------- | :--------------------------------------------------------------------------------------------- |
+| **Next.js 15 (App Router)**    | Core React structural framework utilizing optimized layout nodes.                              |
+| **Better Auth**                | Client/Server credential parsing and third-party Google OAuth integration.                     |
+| **Tailwind CSS**               | Custom theme configuration, utility spacing grid alignments, and high-density dark ui styling. |
+| **Framer Motion**              | Micro-interactions and fluid layout transitions across interactive public sections.            |
+| **Lucide React / React Icons** | Unified SVG dashboard controls and content formatting action toolbars.                         |
+| **React Hot Toast**            | Asynchronous action alerts, constraint warnings, and transaction verification messages.        |
+
+### Backend Service Pipeline Stack (`Server`)
+
+| Dependency                | Purpose                                                                                       |
+| :------------------------ | :-------------------------------------------------------------------------------------------- |
+| **Express.js**            | Enterprise-grade routing architecture and asynchronous REST execution chains.                 |
+| **MongoDB Native Driver** | High-performance, schema-less data interaction layers utilizing atomic updates.               |
+| **JSONWebToken (JWT)**    | Stateless security token generation stored inside client `HTTPOnly` cookies.                  |
+| **Stripe Node API**       | Secure external programmatic checkout validation and server financial confirmation pipelines. |
+| **Cors & Dotenv**         | Cross-Origin resource sharing constraint configuration and process context encapsulation.     |
+
+---
+
+
