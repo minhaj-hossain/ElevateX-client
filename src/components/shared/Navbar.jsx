@@ -133,7 +133,7 @@ export default function Navbar() {
                     <FiUser className="text-[#c6c9ab] text-xs" />
                   )}
                 </div>
-                <span className="text-xs font-semibold uppercase text-[#e5e2e1] tracking-wider max-w-[90px] truncate">
+                <span className="text-xs font-semibold uppercase text-[#e5e2e1] tracking-wider max-w-22.5 truncate">
                   {session.user.name.split(" ")[0]}
                 </span>
                 <div className="w-px h-4 bg-white/10" />

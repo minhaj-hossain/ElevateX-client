@@ -110,7 +110,7 @@ export default function TransactionLedgerPage() {
         </div>
 
         {/* Read-Only High-Density Ledger Table Block */}
-        <div className="bg-[#121214] border border-zinc-900 rounded-xl p-6 overflow-hidden">
+        <div className="bg-[#121214] border border-zinc-900 rounded-xl p-4 sm:p-6 overflow-hidden">
           {loading ? (
             <div className="text-zinc-600 text-xs font-black uppercase tracking-widest text-center py-24">
               Querying live secure network payment streams...
@@ -121,9 +121,10 @@ export default function TransactionLedgerPage() {
               records.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
+            <div>
+              <table className="w-full text-left border-collapse block sm:table">
+                {/* Hidden on Mobile */}
+                <thead className="hidden sm:table-header-group">
                   <tr className="border-b border-zinc-900 text-[11px] font-black uppercase text-zinc-500 tracking-widest">
                     <th className="pb-4">User Email</th>
                     <th className="pb-4">Amount</th>
@@ -132,20 +133,21 @@ export default function TransactionLedgerPage() {
                     <th className="pb-4 text-right">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-900/30 text-xs font-bold text-zinc-200">
+
+                {/* Rendered as stacks on Mobile, table rows on Desktop */}
+                <tbody className="divide-y divide-zinc-900/30 text-xs font-bold text-zinc-200 block sm:table-row-group">
                   {transactions.map((tx) => {
                     const isSucceeded =
                       tx.status?.toLowerCase() === "succeeded" || !tx.status;
                     const isFailed = tx.status?.toLowerCase() === "failed";
-                    const isPending = tx.status?.toLowerCase() === "pending";
 
                     return (
                       <tr
                         key={tx._id}
-                        className="group hover:bg-zinc-900/10 transition-all"
+                        className="group hover:bg-zinc-900/10 transition-all block sm:table-row border border-zinc-900 sm:border-0 rounded-xl p-4 mb-4 sm:mb-0 last:mb-0 space-y-3 sm:space-y-0"
                       >
-                        {/* Column 1: User Identity Information Metadata Details */}
-                        <td className="py-4.5 pr-4">
+                        {/* User Identity */}
+                        <td className="p-0 sm:py-4.5 sm:pr-4 block sm:table-cell">
                           <span className="block font-extrabold text-zinc-200 text-sm tracking-tight group-hover:text-zinc-100 transition-colors">
                             {tx.userEmail || tx.email || "customer@payment.io"}
                           </span>
@@ -156,64 +158,84 @@ export default function TransactionLedgerPage() {
                           </span>
                         </td>
 
-                        {/* Column 2: Extracted Financial Charges */}
-                        <td className="py-4.5 pr-4 text-sm font-black text-zinc-100">
-                          {formatCurrency(tx.amount || 49.99)}
+                        {/* Financial Charges */}
+                        <td className="p-0 sm:py-4.5 sm:pr-4 block sm:table-cell">
+                          <div className="flex justify-between sm:block">
+                            <span className="text-zinc-500 font-black uppercase text-[10px] tracking-wider sm:hidden">
+                              Amount
+                            </span>
+                            <span className="text-sm font-black text-zinc-100">
+                              {formatCurrency(tx.amount || 49.99)}
+                            </span>
+                          </div>
                         </td>
 
-                        {/* Column 3: Localized Stripe Timestamp Event */}
-                        <td className="py-4.5 pr-4 text-zinc-400 font-medium">
-                          <span className="block text-zinc-300">
-                            {tx.dateFormatted ||
-                              new Date(
-                                tx.createdAt || Date.now(),
-                              ).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              })}
-                          </span>
-                          <span className="block text-[10px] text-zinc-500 font-bold mt-0.5">
-                            {tx.timeFormatted ||
-                              new Date(
-                                tx.createdAt || Date.now(),
-                              ).toLocaleTimeString("en-US", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                hour12: false,
-                              })}
-                          </span>
+                        {/* Localized Timestamp */}
+                        <td className="p-0 sm:py-4.5 sm:pr-4 text-zinc-400 font-medium block sm:table-cell">
+                          <div className="flex justify-between items-start sm:block">
+                            <span className="text-zinc-500 font-black uppercase text-[10px] tracking-wider sm:hidden mt-0.5">
+                              Date
+                            </span>
+                            <div className="text-right sm:text-left">
+                              <span className="block text-zinc-300">
+                                {tx.dateFormatted ||
+                                  new Date(
+                                    tx.createdAt || Date.now(),
+                                  ).toLocaleDateString("en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  })}
+                              </span>
+                              <span className="block text-[10px] text-zinc-500 font-bold mt-0.5">
+                                {tx.timeFormatted ||
+                                  new Date(
+                                    tx.createdAt || Date.now(),
+                                  ).toLocaleTimeString("en-US", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: false,
+                                  })}
+                              </span>
+                            </div>
+                          </div>
                         </td>
 
-                        {/* Column 4: Stripe Live Security Signature Hash References */}
-                        <td className="py-4.5 pr-4 font-mono text-[#c4e42a]/90 text-[11px] tracking-tight">
-                          {tx.stripeId ||
-                            tx.transactionId ||
-                            "ch_3Nn8qX2eZvKY1o2C1"}
+                        {/* Security Token Signature Hash */}
+                        <td className="p-0 sm:py-4.5 sm:pr-4 font-mono text-[#c4e42a]/90 text-[11px] tracking-tight block sm:table-cell">
+                          <div className="flex justify-between sm:block">
+                            <span className="text-zinc-500 font-black uppercase text-[10px] tracking-wider font-sans sm:hidden">
+                              TX ID
+                            </span>
+                            <span className="break-all sm:break-normal">
+                              {tx.stripeId ||
+                                tx.transactionId ||
+                                "ch_3Nn8qX2eZvKY1o2C1"}
+                            </span>
+                          </div>
                         </td>
 
-                        {/* Column 5: Status System Badge Node Fields */}
-                        <td className="py-4.5 text-right whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border ${
-                              isSucceeded
-                                ? "bg-lime-950/20 text-[#c4e42a] border-lime-500/20"
-                                : isFailed
-                                  ? "bg-red-950/20 text-red-400 border-red-500/20"
-                                  : "bg-cyan-950/20 text-cyan-400 border-cyan-500/20"
-                            }`}
-                          >
+                        {/* Status Badge */}
+                        <td className="p-0 sm:py-4.5 block sm:table-cell text-left sm:text-right pt-2 sm:pt-0 border-t border-zinc-900/40 sm:border-0">
+                          <div className="flex justify-between items-center sm:justify-end">
+                            <span className="text-zinc-500 font-black uppercase text-[10px] tracking-wider sm:hidden">
+                              Status
+                            </span>
                             <span
-                              className={`w-1 h-1 rounded-full ${
+                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border ${
                                 isSucceeded
-                                  ? "bg-[#c4e42a]"
+                                  ? "bg-lime-950/20 text-[#c4e42a] border-lime-500/20"
                                   : isFailed
-                                    ? "bg-red-400"
-                                    : "bg-cyan-400"
+                                    ? "bg-red-950/20 text-red-400 border-red-500/20"
+                                    : "bg-cyan-950/20 text-cyan-400 border-cyan-500/20"
                               }`}
-                            />
-                            {tx.status || "SUCCEEDED"}
-                          </span>
+                            >
+                              <span
+                                className={`w-1 h-1 rounded-full ${isSucceeded ? "bg-[#c4e42a]" : isFailed ? "bg-red-400" : "bg-cyan-400"}`}
+                              />
+                              {tx.status || "SUCCEEDED"}
+                            </span>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -223,15 +245,15 @@ export default function TransactionLedgerPage() {
             </div>
           )}
 
-          {/* Pagination Interactive View Grid Row Footer Footer */}
+          {/* Pagination Footer */}
           {!loading && pagination.totalPages > 1 && (
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-zinc-900 mt-6 pt-4 text-xs font-bold text-zinc-500 uppercase tracking-wide">
-              <div>
+              <div className="text-center sm:text-left">
                 Showing {pagination.skipOffset + 1} to{" "}
                 {pagination.skipOffset + pagination.showingCount} of{" "}
                 {pagination.totalTransactions.toLocaleString()} transactions
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <button
                   disabled={page === 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}

@@ -116,7 +116,7 @@ export default function ForumPostManagePage() {
           </div>
         </div>
 
-        {/* Filter View Selector Bar (from image_f5da22.png inner header controls) */}
+        {/* Filter View Selector Bar  */}
         <div className="flex flex-wrap items-center justify-between gap-4 bg-[#121214]/40 border border-zinc-900 p-3 rounded-xl">
           <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider">
             <button
@@ -161,9 +161,10 @@ export default function ForumPostManagePage() {
               paths.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
+            <div className="overflow-x-hidden sm:overflow-x-auto">
+              <table className="w-full text-left border-collapse block sm:table">
+                {/* Desktop Table Headers — Hidden on Mobile */}
+                <thead className="hidden sm:table-header-group">
                   <tr className="border-b border-zinc-900 text-[11px] font-black uppercase text-zinc-500 tracking-widest">
                     <th className="pb-4 w-[50%]">Discussion Title</th>
                     <th className="pb-4">Author</th>
@@ -171,24 +172,26 @@ export default function ForumPostManagePage() {
                     <th className="pb-4 text-right">Moderation</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-900/30 text-xs font-bold text-zinc-200">
+
+                {/* Responsive Table Body */}
+                <tbody className="divide-y divide-zinc-900/30 text-xs font-bold text-zinc-200 block sm:table-row-group">
                   {posts.map((post) => {
                     const isReported = post.reportCount > 0;
 
                     return (
                       <tr
                         key={post._id}
-                        className={`group hover:bg-zinc-900/10 transition-all ${isReported ? "bg-red-950/5" : ""}`}
+                        className={`group hover:bg-zinc-900/10 transition-all block sm:table-row border border-zinc-900 sm:border-0 rounded-xl p-4 mb-4 sm:mb-0 last:mb-0 space-y-3 sm:space-y-0 ${
+                          isReported ? "bg-red-950/5 border-red-900/30" : ""
+                        }`}
                       >
-                        {/* Title & Body Sample Field Columns */}
-                        <td className="py-5 pr-6">
+                        {/* Title & Body Overview */}
+                        <td className="p-0 sm:py-5 sm:pr-6 block sm:table-cell">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2.5 flex-wrap">
                               <span className="text-sm font-extrabold uppercase tracking-wide text-zinc-100 group-hover:text-[#c4e42a] transition-colors line-clamp-1">
                                 {post.title}
                               </span>
-
-                              {/* Reported Badges from image_f5da22.png view layer */}
                               {isReported && (
                                 <span className="bg-red-500/10 text-red-400 border border-red-500/20 text-[9px] font-black px-1.5 py-0.5 rounded tracking-tighter uppercase shrink-0">
                                   REPORTED ({post.reportCount})
@@ -203,49 +206,66 @@ export default function ForumPostManagePage() {
                           </div>
                         </td>
 
-                        {/* Author Field layout element box alignment */}
-                        <td className="py-5 pr-4 whitespace-nowrap">
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 text-[10px] font-black rounded-full bg-zinc-950 border border-zinc-800 text-zinc-400 flex items-center justify-center shrink-0 tracking-tighter">
-                              {getInitials(post.authorName)}
+                        {/* Author Details */}
+                        <td className="p-0 sm:py-5 sm:pr-4 block sm:table-cell">
+                          <div className="flex justify-between items-center sm:justify-start sm:gap-2.5">
+                            <span className="text-zinc-500 font-black uppercase text-[10px] tracking-wider sm:hidden">
+                              Author
+                            </span>
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-7 h-7 text-[10px] font-black rounded-full bg-zinc-950 border border-zinc-800 text-zinc-400 flex items-center justify-center shrink-0 tracking-tighter">
+                                {getInitials(post.authorName)}
+                              </div>
+                              <span className="uppercase tracking-wide text-zinc-300 font-extrabold text-[11px]">
+                                {post.authorName || "Community Member"}
+                              </span>
                             </div>
-                            <span className="uppercase tracking-wide text-zinc-300 font-extrabold text-[11px]">
-                              {post.authorName || "Community Member"}
+                          </div>
+                        </td>
+
+                        {/* Posted Date */}
+                        <td className="p-0 sm:py-5 sm:pr-4 text-zinc-400 sm:text-zinc-500 block sm:table-cell">
+                          <div className="flex justify-between items-center sm:block">
+                            <span className="text-zinc-500 font-black uppercase text-[10px] tracking-wider sm:hidden">
+                              Posted
+                            </span>
+                            <span>
+                              {post.datePosted ||
+                                new Date(post.createdAt).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  },
+                                )}
                             </span>
                           </div>
                         </td>
 
-                        {/* Posted Date Context Display */}
-                        <td className="py-5 pr-4 text-zinc-500 whitespace-nowrap">
-                          {post.datePosted ||
-                            new Date(
-                              post.createdAt || Date.now(),
-                            ).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })}
-                        </td>
+                        {/* Administrative Actions / Moderation */}
+                        <td className="p-0 sm:py-5 text-right block sm:table-cell pt-2 sm:pt-0 border-t border-zinc-900/40 sm:border-0">
+                          <div className="flex justify-between items-center sm:justify-end gap-2">
+                            <span className="text-zinc-500 font-black uppercase text-[10px] tracking-wider sm:hidden">
+                              Moderation
+                            </span>
+                            <div className="inline-flex items-center gap-2">
+                              <button
+                                title="Inspect Item Details"
+                                className="p-1.5 rounded bg-transparent border border-zinc-900 text-zinc-600 hover:text-zinc-300 hover:border-zinc-800 transition-all"
+                              >
+                                👁️
+                              </button>
 
-                        {/* Administrative Delete Function Trigger Action column row line */}
-                        <td className="py-5 text-right whitespace-nowrap">
-                          <div className="inline-flex items-center gap-2">
-                            {/* Inspect Link Icon representation matching layout template */}
-                            <button
-                              title="Inspect Item Details"
-                              className="p-1.5 rounded bg-transparent border border-zinc-900 text-zinc-600 hover:text-zinc-300 hover:border-zinc-800 transition-all"
-                            >
-                              👁️
-                            </button>
-
-                            <button
-                              onClick={() =>
-                                handleDeletePost(post._id, post.title)
-                              }
-                              className="px-3 py-1.5 rounded bg-transparent border border-red-950 text-red-400/90 hover:bg-red-500 hover:text-black hover:border-red-500 font-black uppercase text-[10px] tracking-wider transition-all inline-flex items-center gap-1"
-                            >
-                              Delete
-                            </button>
+                              <button
+                                onClick={() =>
+                                  handleDeletePost(post._id, post.title)
+                                }
+                                className="px-3 py-1.5 rounded bg-transparent border border-red-950 text-red-400/90 hover:bg-red-500 hover:text-black hover:border-red-500 font-black uppercase text-[10px] tracking-wider transition-all inline-flex items-center gap-1"
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </div>
                         </td>
                       </tr>

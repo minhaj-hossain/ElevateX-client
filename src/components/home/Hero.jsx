@@ -91,7 +91,7 @@ export default function Hero() {
         >
           <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#d2f000] text-[#0a0a0a] text-xs font-black tracking-widest uppercase italic h-12 px-8 rounded-full shadow-[0_4px_20px_rgba(210,240,0,0.3)] hover:bg-[#b8d400] active:scale-95 transition cursor-pointer select-none">
             Start Your Ascent
-            <FiArrowUpRight className="text-sm stroke-[3]" />
+            <FiArrowUpRight className="text-sm stroke-3" />
           </button>
 
           <button className="w-full sm:w-auto inline-flex items-center justify-center bg-[#1e1e1e]/80 hover:bg-[#2a2a2a] text-white border border-white/10 text-xs font-black tracking-widest uppercase italic h-12 px-8 rounded-full active:scale-95 transition cursor-pointer select-none backdrop-blur-md">

@@ -92,7 +92,7 @@ export default function ManageTrainersPage() {
 
           {/* Metric Status boxes layout (from image_f559e8.png top right component) */}
           <div className="flex gap-3">
-            <div className="bg-[#121214] border border-zinc-900 rounded-lg py-2 px-5 text-center min-w-[100px]">
+            <div className="bg-[#121214] border border-zinc-900 rounded-lg py-2 px-5 text-center min-w-25">
               <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block">
                 Active Trainers
               </span>
@@ -100,7 +100,7 @@ export default function ManageTrainersPage() {
                 {loading ? "..." : metrics.activeTrainers}
               </span>
             </div>
-            <div className="bg-[#121214] border border-zinc-900 rounded-lg py-2 px-5 text-center min-w-[100px]">
+            <div className="bg-[#121214] border border-zinc-900 rounded-lg py-2 px-5 text-center min-w-25">
               <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block">
                 Avg. Rating
               </span>
@@ -111,8 +111,7 @@ export default function ManageTrainersPage() {
           </div>
         </div>
 
-        {/* Data Grid Matrix Log Table Container Box */}
-        <div className="bg-[#121214] border border-zinc-900 rounded-xl p-6 overflow-hidden">
+        <div className="bg-[#121214] border border-zinc-900 rounded-xl p-4 sm:p-6 overflow-hidden">
           {loading ? (
             <div className="text-zinc-600 text-xs font-black uppercase tracking-widest text-center py-20">
               Querying platform coaching registries...
@@ -122,9 +121,10 @@ export default function ManageTrainersPage() {
               No active authorized trainers discovered on the platform.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
+            <div>
+              {/* Desktop Table View / Mobile Grid Card Container */}
+              <table className="w-full text-left border-collapse block sm:table">
+                <thead className="hidden sm:table-header-group">
                   <tr className="border-b border-zinc-900 text-[11px] font-black uppercase text-zinc-500 tracking-widest">
                     <th className="pb-4">Trainer Profile</th>
                     <th className="pb-4">Specialty</th>
@@ -133,14 +133,15 @@ export default function ManageTrainersPage() {
                     <th className="pb-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-900/40 text-xs font-bold text-zinc-200">
+
+                <tbody className="divide-y divide-zinc-900/40 text-xs font-bold text-zinc-200 block sm:table-row-group">
                   {trainers.map((trainer) => (
                     <tr
                       key={trainer._id}
-                      className="group hover:bg-zinc-900/10 transition-all"
+                      className="group hover:bg-zinc-900/10 transition-all block sm:table-row border border-zinc-900 sm:border-0 rounded-xl p-4 mb-4 sm:mb-0 last:mb-0 space-y-4 sm:space-y-0"
                     >
-                      {/* Column 1: Profile identity details metrics layout block */}
-                      <td className="py-5 pr-4">
+                      {/* Profile Identity */}
+                      <td className="p-0 sm:py-4 sm:pr-4 block sm:table-cell">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 relative rounded-lg overflow-hidden bg-zinc-950 shrink-0 border border-zinc-800">
                             <Image
@@ -166,45 +167,62 @@ export default function ManageTrainersPage() {
                         </div>
                       </td>
 
-                      {/* Column 2: Specialty dynamic pill rendering block context */}
-                      <td className="py-5 pr-4">
-                        <span className="inline-block bg-lime-950/20 text-[#c4e42a] border border-lime-900/50 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-md max-w-[150px] truncate">
-                          {trainer.specialty || "High-Intensity Interval"}
-                        </span>
-                      </td>
-
-                      {/* Column 3: Classes launched with visual metric level bar matching image_f559e8.png */}
-                      <td className="py-5 pr-4 min-w-[140px]">
-                        <span className="text-zinc-100 font-black text-sm block">
-                          {trainer.classesCreatedCount }
-                        </span>
-                        <div className="w-24 h-1 bg-zinc-900 rounded-full mt-1.5 overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 rounded-full transition-all duration-500"
-                            style={{
-                              width: getProgressBarWidth(
-                                trainer.classesCreatedCount || 120,
-                              ),
-                            }}
-                          />
-                        </div>
-                      </td>
-
-                      {/* Column 4: Performance review stars aggregation metric output values */}
-                      <td className="py-5 pr-4">
-                        <div className="flex items-center gap-1.5 text-[#c4e42a] text-sm">
-                          <span>★</span>
-                          <span className="text-zinc-100 font-black tracking-tight">
-                            {(trainer.rating || 4.8).toFixed(1)}
+                      {/* Specialty Tag */}
+                      <td className="p-0 sm:py-4 sm:pr-4 block sm:table-cell">
+                        <div className="flex justify-between sm:block">
+                          <span className="text-zinc-500 font-black uppercase text-[10px] tracking-wider sm:hidden">
+                            Specialty
+                          </span>
+                          <span className="inline-block bg-lime-950/20 text-[#c4e42a] border border-lime-900/50 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-md max-w-[150px] truncate">
+                            {trainer.specialty || "High-Intensity Interval"}
                           </span>
                         </div>
                       </td>
 
-                      {/* Column 5: Action Button triggers layer hook links */}
-                      <td className="py-5 text-right">
+                      {/* Classes Created */}
+                      <td className="p-0 sm:py-4 sm:pr-4 block sm:table-cell">
+                        <div className="flex justify-between items-center sm:block">
+                          <span className="text-zinc-500 font-black uppercase text-[10px] tracking-wider sm:hidden">
+                            Classes
+                          </span>
+                          <div>
+                            <span className="text-zinc-100 font-black text-sm block sm:inline">
+                              {trainer.classesCreatedCount}
+                            </span>
+                            <div className="w-20 sm:w-24 h-1 bg-zinc-900 rounded-full mt-1.5 overflow-hidden hidden sm:block">
+                              <div
+                                className="h-full bg-linear-to-r from-emerald-500 to-cyan-400 rounded-full transition-all duration-500"
+                                style={{
+                                  width: getProgressBarWidth(
+                                    trainer.classesCreatedCount || 120,
+                                  ),
+                                }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Overall Rating */}
+                      <td className="p-0 sm:py-4 sm:pr-4 block sm:table-cell">
+                        <div className="flex justify-between sm:block">
+                          <span className="text-zinc-500 font-black uppercase text-[10px] tracking-wider sm:hidden">
+                            Rating
+                          </span>
+                          <div className="flex items-center gap-1.5 text-[#c4e42a] text-sm">
+                            <span>★</span>
+                            <span className="text-zinc-100 font-black tracking-tight">
+                              {(trainer.rating || 4.8).toFixed(1)}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="p-0 sm:py-4 text-right block sm:table-cell pt-2 sm:pt-0 border-t border-zinc-900/40 sm:border-0">
                         <button
                           onClick={() => handleDemote(trainer)}
-                          className="bg-transparent border border-red-950/40 hover:bg-red-950/20 hover:border-red-900/60 text-red-400/90 hover:text-red-400 text-[10px] font-black uppercase tracking-wider px-3 py-2 rounded-lg transition-all inline-flex items-center gap-1.5"
+                          className="w-full sm:w-auto justify-center bg-transparent border border-red-950/40 hover:bg-red-950/20 hover:border-red-900/60 text-red-400/90 hover:text-red-400 text-[10px] font-black uppercase tracking-wider px-3 py-2 rounded-lg transition-all inline-flex items-center gap-1.5 whitespace-nowrap"
                         >
                           <span>👤</span> Demote to User
                         </button>
@@ -216,14 +234,14 @@ export default function ManageTrainersPage() {
             </div>
           )}
 
-          {/* Navigation Interactive Pagination Controls Footer row element blocks */}
+          {/* Pagination Footer */}
           {!loading && pagination.totalPages > 1 && (
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-zinc-900 mt-6 pt-4 text-xs font-bold text-zinc-500 uppercase tracking-wide">
-              <div>
+              <div className="text-center sm:text-left">
                 Showing {pagination.showingCount} of {pagination.totalTrainers}{" "}
                 trainers
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <button
                   disabled={page === 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
