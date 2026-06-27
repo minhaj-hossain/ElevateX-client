@@ -67,12 +67,8 @@ export default function Sidebar({ isOpen, onClose }) {
         label: "Favorite Classes",
         href: "/dashboard/user/favorites",
         icon: FiPlusCircle,
-      },
-      {
-        label: "My Profile",
-        href: "/dashboard/user/profile",
-        icon: FiSettings,
-      },
+      }
+      
     ],
     admin: [
       { label: "Overview", href: "/dashboard/admin", icon: FiGrid },

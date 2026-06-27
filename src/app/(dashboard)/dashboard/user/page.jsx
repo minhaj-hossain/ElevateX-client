@@ -29,7 +29,7 @@ export default function UserDashboardOverview() {
       if (!sessionUser?.email) return;
       try {
         const res = await fetch(
-          `http://localhost:8000/api/user/dashboard-overview?email=${sessionUser.email}`,
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/dashboard-overview?email=${sessionUser.email}`,
         );
         if (res.ok) {
           const data = await res.json();

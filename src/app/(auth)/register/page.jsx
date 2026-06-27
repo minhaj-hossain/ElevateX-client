@@ -16,6 +16,7 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 // 1 line: Import your reusable utility block
 import { uploadImageToImgBB } from "@/utils/uploadImage";
 import { authClient } from "@/lib/auth-client";
+import Link from "next/link";
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -286,12 +287,12 @@ export default function Register() {
               <div className="mt-8 text-center">
                 <p className="text-sm text-[#c6c9ab]">
                   Already have an account?
-                  <a
+                  <Link
+                    href={"/login"}
                     className="text-[#d2f000] font-semibold hover:underline underline-offset-4 decoration-2 transition-all ml-1"
-                    href="#"
                   >
                     Sign In
-                  </a>
+                  </Link>
                 </p>
               </div>
             </div>

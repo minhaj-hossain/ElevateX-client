@@ -16,7 +16,9 @@ export default function ManageUsersPage() {
 
   const fetchUsersData = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/admin/users");
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/users`,
+      );
       if (!res.ok)
         throw new Error("Could not pull network context dashboard records.");
       const data = await res.json();
@@ -39,7 +41,7 @@ export default function ManageUsersPage() {
   const handleToggleBlock = async (userId, currentStatus) => {
     try {
       const res = await fetch(
-        `http://localhost:8000/api/admin/users/${userId}/toggle-block`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/users/${userId}/toggle-block`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -72,7 +74,7 @@ export default function ManageUsersPage() {
   const handleMakeAdmin = async (userId) => {
     try {
       const res = await fetch(
-        `http://localhost:8000/api/admin/users/${userId}/make-admin`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/users/${userId}/make-admin`,
         { method: "PATCH" },
       );
       const data = await res.json();

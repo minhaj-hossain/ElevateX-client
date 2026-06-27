@@ -20,7 +20,7 @@ export default function BookedClassesPage() {
       try {
         // Aligned perfectly with your backend route: /api/user/bookings/:email
         const res = await fetch(
-          `http://localhost:8000/api/user/bookings/${userEmail}`,
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/bookings/${userEmail}`,
         );
         if (res.ok) {
           const data = await res.json();

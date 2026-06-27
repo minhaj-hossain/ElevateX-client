@@ -19,7 +19,7 @@ export default function ForumPostManagePage() {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:8000/api/admin/forum-posts?page=${page}&limit=4&filter=${filter}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/forum-posts?page=${page}&limit=4&filter=${filter}`,
       );
       if (!res.ok) throw new Error("Could not pull network moderation logs.");
       const data = await res.json();
@@ -52,7 +52,7 @@ export default function ForumPostManagePage() {
 
     try {
       const res = await fetch(
-        `http://localhost:8000/api/admin/forum-posts/${postId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/forum-posts/${postId}`,
         {
           method: "DELETE",
         },

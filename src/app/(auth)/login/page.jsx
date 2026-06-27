@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { FiMail, FiLock } from "react-icons/fi";
 import { GiBottledBolt } from "react-icons/gi";
 import { authClient } from "@/lib/auth-client";
+import Link from "next/link";
 
 export default function Login() {
   const handleSubmit = async (e) => {
@@ -34,6 +35,13 @@ export default function Login() {
         },
       },
     );
+  };
+
+  const handleGoogleAuth = async () => {
+    console.log("click happend");
+    await authClient.signIn.social({
+      provider: "google",
+    });
   };
 
   return (
@@ -156,6 +164,7 @@ export default function Login() {
 
               {/* Social Login Button */}
               <button
+                onClick={handleGoogleAuth}
                 type="button"
                 className="w-full bg-transparent border-2 border-white/10 hover:border-white/30 text-[#ffffff] font-semibold py-4 rounded-lg flex items-center justify-center gap-3 transition-all active:scale-[0.98]"
               >
@@ -184,12 +193,12 @@ export default function Login() {
               <div className="mt-8 text-center">
                 <p className="text-sm text-[#c6c9ab]">
                   New to the facility?
-                  <a
+                  <Link
+                    href={"/register"}
                     className="text-[#d2f000] font-semibold hover:underline underline-offset-4 decoration-2 transition-all ml-1"
-                    href="#"
                   >
                     Join the Elite
-                  </a>
+                  </Link>
                 </p>
               </div>
             </div>

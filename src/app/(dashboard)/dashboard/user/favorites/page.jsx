@@ -43,7 +43,7 @@ export default function FavoriteClassesPage() {
     if (!sessionUser?.email) return;
     try {
       const res = await fetch(
-        `http://localhost:8000/api/favorites?email=${sessionUser.email}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/favorites?email=${sessionUser.email}`,
       );
       if (res.ok) {
         const data = await res.json();
@@ -67,11 +67,14 @@ export default function FavoriteClassesPage() {
     if (!sessionUser?.email) return;
 
     try {
-      const res = await fetch("http://localhost:8000/api/favorites/toggle", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: sessionUser.email, classId }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/favorites/toggle`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: sessionUser.email, classId }),
+        },
+      );
 
       if (res.ok) {
         // Optimistically update the UI state

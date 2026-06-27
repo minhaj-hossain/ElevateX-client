@@ -46,7 +46,7 @@ export default function ForumPostDetailsPage() {
       try {
         // 1. Fetch Post Metrics & Content
         const postRes = await fetch(
-          `http://localhost:8000/api/forum-posts/${postId}`,
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/forum-posts/${postId}`,
         );
         if (!postRes.ok) throw new Error("Post not found");
         const postData = await postRes.json();
@@ -56,14 +56,14 @@ export default function ForumPostDetailsPage() {
 
         // 2. Fetch User Vote Status
         const voteRes = await fetch(
-          `http://localhost:8000/api/forum-posts/${postId}/vote-status?userId=${userId}`,
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/forum-posts/${postId}/vote-status?userId=${userId}`,
         );
         const voteData = await voteRes.json();
         setUserVote(voteData.voteType); // Returns 'like', 'dislike', or null
 
         // 3. Fetch Comments
         const commentsRes = await fetch(
-          `http://localhost:8000/api/forum-posts/${postId}/comments`,
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/forum-posts/${postId}/comments`,
         );
         const commentsData = await commentsRes.json();
         setComments(commentsData || []);
@@ -82,7 +82,7 @@ export default function ForumPostDetailsPage() {
   const handleVote = async (type) => {
     try {
       const res = await fetch(
-        `http://localhost:8000/api/forum-posts/${postId}/vote`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/forum-posts/${postId}/vote`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -111,7 +111,7 @@ export default function ForumPostDetailsPage() {
 
     try {
       const res = await fetch(
-        `http://localhost:8000/api/forum-posts/${postId}/comments`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/forum-posts/${postId}/comments`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -140,7 +140,7 @@ export default function ForumPostDetailsPage() {
     if (!editingText.trim()) return;
     try {
       const res = await fetch(
-        `http://localhost:8000/api/comments/${commentId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/comments/${commentId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -167,7 +167,7 @@ export default function ForumPostDetailsPage() {
     if (!confirm("Are you sure you want to delete this comment?")) return;
     try {
       const res = await fetch(
-        `http://localhost:8000/api/comments/${commentId}?userId=${userId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/comments/${commentId}?userId=${userId}`,
         {
           method: "DELETE",
         },

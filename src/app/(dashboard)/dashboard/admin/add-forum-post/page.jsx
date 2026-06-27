@@ -49,49 +49,6 @@ export default function AdminCreatePost() {
     }
   };
 
-  //     e.preventDefault();
-  //     if (!title.trim() || !description.trim()) {
-  //       return toast.error("A valid post title and description are required.");
-  //     }
-
-  //     try {
-  //       setIsSubmitting(true);
-
-  //       const payload = {
-  //         title,
-  //         description,
-  //         image: imageUrl,
-  //         adminId: session?.user?.id || "admin_fallback",
-  //         status: isDraft ? "draft" : "published",
-  //       };
-
-  //       const response = await fetch("http://localhost:8000/api/admin/posts", {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify(payload),
-  //       });
-
-  //       if (response.ok) {
-  //         toast.success(
-  //           isDraft
-  //             ? "Draft saved successfully!"
-  //             : "Announcement published live!",
-  //         );
-  //         // router.push("/dashboard/admin/forum");
-  //       } else {
-  //         throw new Error("Target response state returned error status codes.");
-  //       }
-  //     } catch (error) {
-  //       console.error(
-  //         "Failed executing admin post creation lifecycle sync:",
-  //         error,
-  //       );
-  //       toast.error("Failed to commit administrative board entry.");
-  //     } finally {
-  //       setIsSubmitting(false);
-  //     }
-  //   };
-
   const handleSubmit = async (e, isDraft = false) => {
     e.preventDefault();
     if (!title.trim() || !description.trim()) {
@@ -109,11 +66,14 @@ export default function AdminCreatePost() {
         status: isDraft ? "draft" : "published",
       };
 
-      const response = await fetch("http://localhost:8000/api/admin/posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/posts`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
 
       if (response.ok) {
         toast.success(
@@ -126,7 +86,6 @@ export default function AdminCreatePost() {
         setDescription("");
         setImageUrl("");
 
-        
         throw new Error("Target response state returned error status codes.");
       }
     } catch (error) {

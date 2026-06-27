@@ -10,7 +10,6 @@ export default function ClassDetailsPage() {
   const { classId } = useParams();
   const router = useRouter();
 
-  // The logged-in User session (The buyer purchasing the class)
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
   const userEmail = session?.user?.email;
@@ -28,7 +27,9 @@ export default function ClassDetailsPage() {
     const fetchClassDetails = async () => {
       try {
         // 1. Fetch main target class data
-        const res = await fetch(`http://localhost:8000/api/classes/${classId}`);
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/classes/${classId}`,
+        );
         const data = await res.json();
         setClassData(data);
 
@@ -36,12 +37,11 @@ export default function ClassDetailsPage() {
           setSelectedSession(data.schedule[0]);
         }
 
-        // 2. Perform conditional validations if a user session is active
-        // CHANGED: Verify using userEmail to match your Express check schema pattern
+     
         if (userEmail) {
           // Check if already booked
           const bookingRes = await fetch(
-            `http://localhost:8000/api/bookings/check?email=${userEmail}&classId=${classId}`,
+            `${process.env.NEXT_PUBLIC_SERVER_URL}/api/bookings/check?email=${userEmail}&classId=${classId}`,
           );
           const bookingData = await bookingRes.json();
           // FIXED: Your backend returns 'alreadyBooked', not 'isBooked'
@@ -49,7 +49,7 @@ export default function ClassDetailsPage() {
 
           // Check if already in favorites list
           const favoriteRes = await fetch(
-            `http://localhost:8000/api/favorites/check?email=${userEmail}&classId=${classId}`,
+            `${process.env.NEXT_PUBLIC_SERVER_URL}/api/favorites/check?email=${userEmail}&classId=${classId}`,
           );
           const favoriteData = await favoriteRes.json();
           setIsFavorite(favoriteData.isFavorite);
@@ -65,7 +65,7 @@ export default function ClassDetailsPage() {
     fetchClassDetails();
   }, [classId, userId, userEmail]);
 
-  // Handle Booking Initiation
+
   // Handle Booking Initiation
   const handleBooking = async () => {
     if (!userId) {
@@ -84,7 +84,7 @@ export default function ClassDetailsPage() {
     }
 
     try {
-      // Clean fallback parameters so undefined values don't pollute the payload
+
       const fallbackPrice = classData?.price
         ? String(classData.price)
         : "45.00";
@@ -138,7 +138,7 @@ export default function ClassDetailsPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/api/favorites/toggle`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/favorites/toggle`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -32,7 +32,7 @@ export default function EditClass() {
     const fetchClassData = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/api/getClass/${classId}`,
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/getClass/${classId}`,
         );
         const data = await response.json();
         if (data) {
@@ -78,7 +78,7 @@ export default function EditClass() {
     e.preventDefault();
     try {
       const response = await fetch(
-        `http://localhost:8000/api/updateClass/${classId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/updateClass/${classId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },

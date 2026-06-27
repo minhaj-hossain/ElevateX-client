@@ -19,7 +19,7 @@ export default function ManageTrainersPage() {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:8000/api/admin/trainers?page=${page}&limit=4`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/trainers?page=${page}&limit=4`,
       );
       if (!res.ok) throw new Error("Could not pull network context records.");
       const data = await res.json();
@@ -49,7 +49,7 @@ export default function ManageTrainersPage() {
 
     try {
       const res = await fetch(
-        `http://localhost:8000/api/admin/trainers/${trainer._id}/demote`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/trainers/${trainer._id}/demote`,
         {
           method: "PATCH",
         },

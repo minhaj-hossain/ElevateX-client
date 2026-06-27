@@ -19,7 +19,7 @@ export default function FeaturedClassesSection() {
     const fetchFeaturedClasses = async () => {
       try {
         const res = await fetch(
-          "http://localhost:8000/api/classes/featured?limit=3",
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/classes/featured?limit=3`,
         );
         if (!res.ok) throw new Error("Failed to load featured programs");
         const data = await res.json();
@@ -31,7 +31,7 @@ export default function FeaturedClassesSection() {
           const statusChecks = classes.map(async (item) => {
             try {
               const checkRes = await fetch(
-                `http://localhost:8000/api/bookings/check?email=${userEmail}&classId=${item._id}`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/api/bookings/check?email=${userEmail}&classId=${item._id}`,
               );
               if (checkRes.ok) {
                 const checkData = await checkRes.json();

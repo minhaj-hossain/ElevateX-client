@@ -19,7 +19,7 @@ export default function ClassManagementPage() {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:8000/api/admin/classes?page=${page}&limit=4`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/classes?page=${page}&limit=4`,
       );
       if (!res.ok) throw new Error("Could not pull dynamic class records.");
       const data = await res.json();
@@ -43,7 +43,7 @@ export default function ClassManagementPage() {
   const handleUpdateStatus = async (classId, nextStatus) => {
     try {
       const res = await fetch(
-        `http://localhost:8000/api/admin/classes/${classId}/status`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/classes/${classId}/status`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -78,7 +78,7 @@ export default function ClassManagementPage() {
 
     try {
       const res = await fetch(
-        `http://localhost:8000/api/admin/classes/${classId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/classes/${classId}`,
         {
           method: "DELETE",
         },

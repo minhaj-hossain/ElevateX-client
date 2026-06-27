@@ -64,11 +64,14 @@ export default function CreatePost() {
 
       console.log(payload);
 
-      const response = await fetch("http://localhost:8000/api/posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/posts`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
 
       if (response.ok) {
         // Clear window context or send back to localized tracking view dashboard

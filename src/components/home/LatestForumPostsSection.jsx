@@ -13,7 +13,7 @@ export default function LatestForumPostsSection() {
       try {
         // Requesting the top 4 most recent posts from the Express API
         const res = await fetch(
-          "http://localhost:8000/api/forum-posts/latest?limit=4",
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/forum-posts/latest?limit=4`,
         );
         if (!res.ok) throw new Error("Failed to load community insights");
         const data = await res.json();

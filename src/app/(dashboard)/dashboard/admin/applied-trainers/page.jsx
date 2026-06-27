@@ -19,7 +19,7 @@ export default function AppliedTrainersPage() {
   const fetchApplications = async () => {
     try {
       const res = await fetch(
-        "http://localhost:8000/api/admin/trainer-applications",
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/trainer-applications`,
       );
       if (!res.ok) throw new Error("Network pipeline reading failure.");
       const data = await res.json();
@@ -45,7 +45,7 @@ export default function AppliedTrainersPage() {
 
     try {
       const res = await fetch(
-        `http://localhost:8000/api/admin/trainer-applications/${selectedApp._id}/process`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/trainer-applications/${selectedApp._id}/process`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -28,7 +28,7 @@ export default function ForumManagement() {
 
       try {
         const response = await fetch(
-          `http://localhost:8000/api/getTrainerPosts/${trainerId}`,
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/getTrainerPosts/${trainerId}`,
         );
         const data = await response.json();
         setPosts(data);
@@ -59,7 +59,7 @@ export default function ForumManagement() {
     console.log(postId);
     try {
       const response = await fetch(
-        `http://localhost:8000/api/deletePost/${postId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deletePost/${postId}`,
         {
           method: "DELETE",
         },

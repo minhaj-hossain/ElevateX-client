@@ -10,7 +10,6 @@ export default function ApplyAsTrainerPage() {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // Status states: 'none' | 'pending' | 'rejected'
   const [applicationStatus, setApplicationStatus] = useState("none");
   const [adminFeedback, setAdminFeedback] = useState("");
 
@@ -29,16 +28,19 @@ export default function ApplyAsTrainerPage() {
           router.push("/login");
           return;
         }
+
         setSessionUser(sessionData.user);
 
         // Fetch application status from backend
         const res = await fetch(
-          `http://localhost:8000/api/trainer/status?email=${sessionData.user.email}`,
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/trainer/status?email=${sessionData.user.email}`,
         );
         if (res.ok) {
           const statusData = await res.json();
-          // Expecting statusData: { status: 'pending'|'rejected'|'none', feedback: '...' }
-          setApplicationStatus(statusData.status || "none");
+
+          // Force value to lowercase immediately to ensure stable matching
+          const normalizedStatus = (statusData.status || "none").toLowerCase();
+          setApplicationStatus(normalizedStatus);
           setAdminFeedback(statusData.feedback || "");
         }
       } catch (err) {
@@ -61,21 +63,24 @@ export default function ApplyAsTrainerPage() {
 
     setSubmitting(true);
     try {
-      const res = await fetch("http://localhost:8000/api/trainer/apply", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: sessionUser.email,
-          name: sessionUser.name,
-          ...formData,
-        }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/trainer/apply`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: sessionUser.email,
+            name: sessionUser.name,
+            ...formData,
+          }),
+        },
+      );
 
       if (!res.ok) throw new Error("Application transmission rejected.");
 
+      // Set to lowercase 'pending' to match our unified conditional screens
       setApplicationStatus("pending");
     } catch (error) {
-      console.error("Submission failed:", error);
       alert("Error sending application state.");
     } finally {
       setSubmitting(false);
@@ -90,7 +95,7 @@ export default function ApplyAsTrainerPage() {
     );
   }
 
-  // State A: Pending View
+  // State A: Pending View (Safely checks lowercase value)
   if (applicationStatus === "pending") {
     return (
       <div className="min-h-screen bg-[#0a0a0c] text-white flex items-center justify-center p-6">
@@ -115,7 +120,7 @@ export default function ApplyAsTrainerPage() {
     );
   }
 
-  // State B: Base Layout (Handles 'none' / Fresh form and 'rejected' alert alerts)
+  // State B: Base Layout (Handles 'none' / Fresh form and 'rejected' alert states)
   return (
     <div className="min-h-screen bg-[#0a0a0c] text-white p-6 md:p-12 font-sans selection:bg-[#c4e42a] selection:text-black">
       <div className="max-w-5xl mx-auto space-y-8">
@@ -246,7 +251,7 @@ export default function ApplyAsTrainerPage() {
 
           {/* Sidebar */}
           <div className="lg:col-span-5 space-y-4">
-            <div className="bg-[#121214] border-l-2 border-[#c4e42a] rounded-r-xl border-y border-r border-zinc-900 p-5 space-y-3">
+            <div className="bg-[#121214] border-l-2 rounded-r-xl border-y border-r border-zinc-900 p-5 space-y-3">
               <h3 className="text-xs font-black text-zinc-200 uppercase tracking-wider">
                 ⚙️ Requirements
               </h3>

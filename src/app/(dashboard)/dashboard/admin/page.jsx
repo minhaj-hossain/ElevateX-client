@@ -39,7 +39,7 @@ export default function AdminOverviewPage() {
         if (sessionData?.user) setSessionUser(sessionData.user);
 
         const res = await fetch(
-          "http://localhost:8000/api/admin/overview-stats",
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/overview-stats`,
         );
         if (!res.ok) throw new Error("Failed to pull system statistics.");
         const data = await res.json();
@@ -229,7 +229,10 @@ export default function AdminOverviewPage() {
               <div className="relative w-28 h-28 rounded-full p-1 border-2 border-[#c4e42a] overflow-hidden">
                 <div className="relative w-full h-full rounded-full bg-zinc-800 overflow-hidden">
                   <Image
-                    src={sessionUser?.image || "https://images.unsplash.com/photo-1534528741775-53994a69daeb"}
+                    src={
+                      sessionUser?.image ||
+                      "https://images.unsplash.com/photo-1534528741775-53994a69daeb"
+                    }
                     alt="Jordan Vane"
                     fill
                     className="object-cover scale-105"
@@ -263,7 +266,8 @@ export default function AdminOverviewPage() {
                     Join Date
                   </p>
                   <p className="text-xs font-bold text-zinc-200 mt-0.5">
-                    {new Date(sessionUser?.createdAt).toLocaleDateString() || "Jan 15, 2023"}
+                    {new Date(sessionUser?.createdAt).toLocaleDateString() ||
+                      "Jan 15, 2023"}
                   </p>
                 </div>
               </div>

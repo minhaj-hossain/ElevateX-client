@@ -28,7 +28,7 @@ export default function ClassManagement() {
     if (!trainerId) return;
     try {
       const response = await fetch(
-        `http://localhost:8000/api/getClasses/${trainerId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/getClasses/${trainerId}`,
       );
       const data = await response.json();
       setClasses(data);
@@ -68,7 +68,7 @@ export default function ClassManagement() {
     if (!selectedClassId) return;
     try {
       const response = await fetch(
-        `http://localhost:8000/api/deleteClass/${selectedClassId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deleteClass/${selectedClassId}`,
         {
           method: "DELETE",
         },
