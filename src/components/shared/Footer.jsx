@@ -14,8 +14,8 @@ export default function Footer() {
           {/* Brand Introduction Identity (Left Segment) */}
           <div className="md:col-span-6 space-y-4">
             <div className="flex items-center gap-3">
-              {/* Fallback geometric representation of the brand emblem */}
-              <div className="w-5 h-5 bg-gradient-to-br from-[#c4e42a] to-zinc-700 rounded-sm transform rotate-45 flex items-center justify-center">
+            
+              <div className="w-5 h-5 bg-linear-to-br from-[#c4e42a] to-zinc-700 rounded-sm transform rotate-45 flex items-center justify-center">
                 <div className="w-2 h-2 bg-[#070708] rounded-xs" />
               </div>
               <span className="text-sm font-black tracking-tight uppercase italic text-zinc-100">

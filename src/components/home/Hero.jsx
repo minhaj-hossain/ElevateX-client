@@ -25,8 +25,8 @@ export default function Hero() {
             backgroundImage: `url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1920')`,
           }}
         />
-        {/* Cinematic Vignette Overlay mapping the dark environment color scheme */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/80 via-transparent to-[#0a0a0a]" />
+   
+        <div className="absolute inset-0 bg-linear-to-b from-[#0a0a0a]/80 via-transparent to-[#0a0a0a]" />
         <div className="absolute inset-0 bg-[#0a0a0a]/30 backdrop-blur-[1px]" />
       </div>
 

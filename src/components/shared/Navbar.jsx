@@ -20,7 +20,7 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       await authClient.signOut();
-      window.location.href = "/login";
+      // window.location.href = "/login";
     } catch (error) {
       console.error("Logout failed:", error);
     }
@@ -65,16 +65,12 @@ export default function Navbar() {
             href="/"
             className="flex items-center gap-2.5 hover:scale-[1.03] active:scale-[0.97] transition-all duration-300 shrink-0"
           >
-            {/* Icon with glow ring */}
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-[#d2f000]/10 border border-[#d2f000]/20 shadow-[0_0_16px_rgba(210,240,0,0.25)]">
-              <GiBottledBolt className="text-[#d2f000] text-2xl" />
+            <div className="w-5 h-5 bg-linear-to-br from-[#c4e42a] to-zinc-700 rounded-sm transform rotate-45 flex items-center justify-center">
+              <div className="w-2 h-2 bg-[#070708] rounded-xs" />
             </div>
 
             {/* Wordmark */}
             <div className="flex flex-col leading-none">
-              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#c6c9ab]/60 -mb-0.5">
-                by elite
-              </span>
               <h1 className="text-xl md:text-2xl font-bold tracking-tighter italic uppercase text-[#d2f000] leading-none">
                 Elevate
                 <span className="bg-linear-to-r from-[#dfff00] to-[#00daf8] bg-clip-text text-transparent">
