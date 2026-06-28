@@ -31,14 +31,20 @@ export default function ApplyAsTrainerPage() {
 
         setSessionUser(sessionData.user);
 
-        // Fetch application status from backend
+        const { data: tokenData } = await authClient.token();
+
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/trainer/status?email=${sessionData.user.email}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${tokenData?.token}`,
+            },
+          },
         );
         if (res.ok) {
           const statusData = await res.json();
 
-          // Force value to lowercase immediately to ensure stable matching
           const normalizedStatus = (statusData.status || "none").toLowerCase();
           setApplicationStatus(normalizedStatus);
           setAdminFeedback(statusData.feedback || "");
@@ -62,12 +68,17 @@ export default function ApplyAsTrainerPage() {
     if (!sessionUser?.email) return;
 
     setSubmitting(true);
+
+    const { data: tokenData } = await authClient.token();
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/trainer/apply`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
           body: JSON.stringify({
             email: sessionUser.email,
             name: sessionUser.name,

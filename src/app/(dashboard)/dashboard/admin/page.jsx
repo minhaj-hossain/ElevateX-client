@@ -38,8 +38,16 @@ export default function AdminOverviewPage() {
         const { data: sessionData } = await authClient.getSession();
         if (sessionData?.user) setSessionUser(sessionData.user);
 
+        const { data: tokenData } = await authClient.token();
+
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/overview-stats`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${tokenData?.token}`,
+            },
+          },
         );
         if (!res.ok) throw new Error("Failed to pull system statistics.");
         const data = await res.json();

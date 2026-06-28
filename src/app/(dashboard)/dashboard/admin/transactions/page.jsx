@@ -1,5 +1,6 @@
 "use client";
 
+import { authClient } from "@/lib/auth-client";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
@@ -22,9 +23,18 @@ export default function TransactionLedgerPage() {
   useEffect(() => {
     const fetchTransactions = async () => {
       setLoading(true);
+
+      const { data: tokenData } = await authClient.token();
+
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/transactions?page=${page}&limit=6`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${tokenData?.token}`,
+            },
+          },
         );
         if (!res.ok) throw new Error("Could not pull payment history context.");
         const data = await res.json();

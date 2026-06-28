@@ -1,5 +1,6 @@
 "use client";
 
+import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
@@ -30,9 +31,17 @@ export default function EditClass() {
     if (!classId) return;
 
     const fetchClassData = async () => {
+      const { data: tokenData } = await authClient.token();
+
       try {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/getClass/${classId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${tokenData?.token}`,
+            },
+          },
         );
         const data = await response.json();
         if (data) {
@@ -76,12 +85,18 @@ export default function EditClass() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const { data: tokenData } = await authClient.token();
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/updateClass/${classId}`,
         {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
           body: JSON.stringify(formData),
         },
       );

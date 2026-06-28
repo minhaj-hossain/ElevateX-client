@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { authClient } from "@/lib/auth-client";
 
 export default function ForumContent() {
   const router = useRouter();
@@ -28,11 +29,14 @@ export default function ForumContent() {
         const query = new URLSearchParams({
           search: currentSearch,
           page: currentPage.toString(),
-          limit: "6", // Matches your UI template displaying 6 items per page
+          limit: "6", 
         });
+
+     
 
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/forum-posts?${query.toString()}`,
+         
         );
         const data = await res.json();
 

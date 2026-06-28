@@ -44,9 +44,16 @@ export default function ForumPostDetailsPage() {
 
     const fetchPostData = async () => {
       try {
-        // 1. Fetch Post Metrics & Content
+        const { data: tokenData } = await authClient.token();
+
         const postRes = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/forum-posts/${postId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${tokenData?.token}`,
+            },
+          },
         );
         if (!postRes.ok) throw new Error("Post not found");
         const postData = await postRes.json();
@@ -57,13 +64,23 @@ export default function ForumPostDetailsPage() {
         // 2. Fetch User Vote Status
         const voteRes = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/forum-posts/${postId}/vote-status?userId=${userId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${tokenData?.token}`,
+            },
+          },
         );
         const voteData = await voteRes.json();
-        setUserVote(voteData.voteType); // Returns 'like', 'dislike', or null
-
-        // 3. Fetch Comments
+        setUserVote(voteData.voteType);
         const commentsRes = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/forum-posts/${postId}/comments`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${tokenData?.token}`,
+            },
+          },
         );
         const commentsData = await commentsRes.json();
         setComments(commentsData || []);
@@ -80,12 +97,17 @@ export default function ForumPostDetailsPage() {
 
   // Handle Voting (Like / Dislike)
   const handleVote = async (type) => {
+    const { data: tokenData } = await authClient.token();
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/forum-posts/${postId}/vote`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
           body: JSON.stringify({ userId, type }),
         },
       );
@@ -109,12 +131,17 @@ export default function ForumPostDetailsPage() {
     e.preventDefault();
     if (!commentText.trim()) return;
 
+    const { data: tokenData } = await authClient.token();
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/forum-posts/${postId}/comments`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
           body: JSON.stringify({
             userId,
             userName,
@@ -138,12 +165,18 @@ export default function ForumPostDetailsPage() {
   // Update Comment
   const handleUpdateComment = async (commentId) => {
     if (!editingText.trim()) return;
+
+    const { data: tokenData } = await authClient.token();
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/comments/${commentId}`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
           body: JSON.stringify({ userId, text: editingText }),
         },
       );
@@ -165,11 +198,19 @@ export default function ForumPostDetailsPage() {
   // Delete Comment
   const handleDeleteComment = async (commentId) => {
     if (!confirm("Are you sure you want to delete this comment?")) return;
+
+
+    const { data: tokenData } = await authClient.token();
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/comments/${commentId}?userId=${userId}`,
         {
           method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
         },
       );
 

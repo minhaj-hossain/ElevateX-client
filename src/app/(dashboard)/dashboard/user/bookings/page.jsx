@@ -8,19 +8,26 @@ import { toast } from "react-hot-toast";
 
 export default function BookedClassesPage() {
   const { data: session } = authClient.useSession();
-  const userEmail = session?.user?.email; // Changed from userId to userEmail
+  const userEmail = session?.user?.email;
 
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!userEmail) return; // Prevent fire if user email isn't loaded yet
+    if (!userEmail) return;
 
     const fetchBookedClasses = async () => {
       try {
-        // Aligned perfectly with your backend route: /api/user/bookings/:email
+        const { data: tokenData } = await authClient.token();
+
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/bookings/${userEmail}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${tokenData?.token}`,
+            },
+          },
         );
         if (res.ok) {
           const data = await res.json();

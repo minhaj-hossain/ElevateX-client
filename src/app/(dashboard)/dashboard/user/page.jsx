@@ -23,13 +23,21 @@ export default function UserDashboardOverview() {
     checkSession();
   }, []);
 
-  // 2. Fetch Dashboard Metrics
   useEffect(() => {
     const fetchDashboardMetrics = async () => {
       if (!sessionUser?.email) return;
+
+      const { data: tokenData } = await authClient.token();
+
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/dashboard-overview?email=${sessionUser.email}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${tokenData?.token}`,
+            },
+          },
         );
         if (res.ok) {
           const data = await res.json();

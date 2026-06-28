@@ -17,9 +17,17 @@ export default function FeaturedClassesSection() {
 
   useEffect(() => {
     const fetchFeaturedClasses = async () => {
+      const { data: tokenData } = await authClient.token();
+
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/classes/featured?limit=3`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${tokenData?.token}`,
+            },
+          },
         );
         if (!res.ok) throw new Error("Failed to load featured programs");
         const data = await res.json();
@@ -29,9 +37,17 @@ export default function FeaturedClassesSection() {
         // Check if current user already has this slot secured
         if (userEmail && classes.length > 0) {
           const statusChecks = classes.map(async (item) => {
+            const { data: tokenData } = await authClient.token();
+
             try {
               const checkRes = await fetch(
                 `${process.env.NEXT_PUBLIC_SERVER_URL}/api/bookings/check?email=${userEmail}&classId=${item._id}`,
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    authorization: `Bearer ${tokenData?.token}`,
+                  },
+                },
               );
               if (checkRes.ok) {
                 const checkData = await checkRes.json();
@@ -112,7 +128,7 @@ export default function FeaturedClassesSection() {
                     {item.image ? (
                       <Image
                         src={item.image}
-                        alt={item.className}
+                        alt={item.className || "nothing special"}
                         fill
                         className="object-cover"
                       />

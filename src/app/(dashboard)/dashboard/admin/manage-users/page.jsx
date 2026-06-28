@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
+import { authClient } from "@/lib/auth-client";
 
 export default function ManageUsersPage() {
   const [users, setUsers] = useState([]);
@@ -15,9 +16,17 @@ export default function ManageUsersPage() {
   const [loading, setLoading] = useState(true);
 
   const fetchUsersData = async () => {
+    const { data: tokenData } = await authClient.token();
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/users`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
+        },
       );
       if (!res.ok)
         throw new Error("Could not pull network context dashboard records.");
@@ -39,12 +48,17 @@ export default function ManageUsersPage() {
   }, []);
 
   const handleToggleBlock = async (userId, currentStatus) => {
+    const { data: tokenData } = await authClient.token();
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/users/${userId}/toggle-block`,
         {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
           body: JSON.stringify({ currentStatus }),
         },
       );

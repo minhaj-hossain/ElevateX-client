@@ -1,5 +1,6 @@
 "use client";
 
+import { authClient } from "@/lib/auth-client";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
@@ -17,9 +18,17 @@ export default function AppliedTrainersPage() {
   const [processing, setProcessing] = useState(false);
 
   const fetchApplications = async () => {
+    const { data: tokenData } = await authClient.token();
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/trainer-applications`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
+        },
       );
       if (!res.ok) throw new Error("Network pipeline reading failure.");
       const data = await res.json();
@@ -43,12 +52,17 @@ export default function AppliedTrainersPage() {
     if (!selectedApp) return;
     setProcessing(true);
 
+    const { data: tokenData } = await authClient.token();
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/trainer-applications/${selectedApp._id}/process`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
           body: JSON.stringify({
             action: actionType,
             feedback,

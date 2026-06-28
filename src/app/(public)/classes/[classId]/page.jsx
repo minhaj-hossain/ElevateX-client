@@ -26,9 +26,16 @@ export default function ClassDetailsPage() {
 
     const fetchClassDetails = async () => {
       try {
-        // 1. Fetch main target class data
+        const { data: tokenData } = await authClient.token();
+
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/classes/${classId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${tokenData?.token}`,
+            },
+          },
         );
         const data = await res.json();
         setClassData(data);
@@ -37,19 +44,28 @@ export default function ClassDetailsPage() {
           setSelectedSession(data.schedule[0]);
         }
 
-     
         if (userEmail) {
-          // Check if already booked
           const bookingRes = await fetch(
             `${process.env.NEXT_PUBLIC_SERVER_URL}/api/bookings/check?email=${userEmail}&classId=${classId}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                authorization: `Bearer ${tokenData?.token}`,
+              },
+            },
           );
           const bookingData = await bookingRes.json();
-          // FIXED: Your backend returns 'alreadyBooked', not 'isBooked'
+
           setHasBooked(!!bookingData.alreadyBooked);
 
-          // Check if already in favorites list
           const favoriteRes = await fetch(
             `${process.env.NEXT_PUBLIC_SERVER_URL}/api/favorites/check?email=${userEmail}&classId=${classId}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                authorization: `Bearer ${tokenData?.token}`,
+              },
+            },
           );
           const favoriteData = await favoriteRes.json();
           setIsFavorite(favoriteData.isFavorite);
@@ -64,7 +80,6 @@ export default function ClassDetailsPage() {
 
     fetchClassDetails();
   }, [classId, userId, userEmail]);
-
 
   // Handle Booking Initiation
   const handleBooking = async () => {
@@ -84,7 +99,6 @@ export default function ClassDetailsPage() {
     }
 
     try {
-
       const fallbackPrice = classData?.price
         ? String(classData.price)
         : "45.00";
@@ -136,12 +150,17 @@ export default function ClassDetailsPage() {
       return;
     }
 
+    const { data: tokenData } = await authClient.token();
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/favorites/toggle`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
           body: JSON.stringify({ email: userEmail, classId }),
         },
       );

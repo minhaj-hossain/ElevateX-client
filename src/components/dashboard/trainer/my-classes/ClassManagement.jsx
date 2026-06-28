@@ -26,9 +26,18 @@ export default function ClassManagement() {
 
   const getData = async () => {
     if (!trainerId) return;
+
+    const { data: tokenData } = await authClient.token();
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/getClasses/${trainerId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
+        },
       );
       const data = await response.json();
       setClasses(data);
@@ -63,18 +72,24 @@ export default function ClassManagement() {
     setIsModalOpen(true);
   };
 
-  // Makes API call to backend route to execute clean removal
+  
   const handleConfirmDelete = async () => {
     if (!selectedClassId) return;
+
+    const { data: tokenData } = await authClient.token();
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deleteClass/${selectedClassId}`,
         {
           method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
         },
       );
       if (response.ok) {
-        // Optimistically update frontend state layout removing the item instantly
+   
         setClasses((prev) =>
           prev.filter((item) => item._id !== selectedClassId),
         );

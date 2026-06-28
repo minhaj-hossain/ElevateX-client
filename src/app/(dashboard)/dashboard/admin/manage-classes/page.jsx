@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
+import { authClient } from "@/lib/auth-client";
 
 export default function ClassManagementPage() {
   const [classes, setClasses] = useState([]);
@@ -16,10 +17,18 @@ export default function ClassManagementPage() {
   const [page, setPage] = useState(1);
 
   const fetchClasses = async () => {
+    const { data: tokenData } = await authClient.token();
+
     setLoading(true);
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/classes?page=${page}&limit=4`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
+        },
       );
       if (!res.ok) throw new Error("Could not pull dynamic class records.");
       const data = await res.json();
@@ -41,12 +50,16 @@ export default function ClassManagementPage() {
   }, [page]);
 
   const handleUpdateStatus = async (classId, nextStatus) => {
+    const { data: tokenData } = await authClient.token();
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/classes/${classId}/status`,
         {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
           body: JSON.stringify({ status: nextStatus }),
         },
       );
@@ -75,12 +88,17 @@ export default function ClassManagementPage() {
       `DANGER WARN:\nAre you sure you want to permanently delete "${className}"? This clears all nested booking relations associated with this program.`,
     );
     if (!verifyPurge) return;
+     const { data: tokenData } = await authClient.token();
 
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/classes/${classId}`,
         {
           method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
         },
       );
       const data = await res.json();

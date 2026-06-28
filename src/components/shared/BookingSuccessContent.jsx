@@ -32,9 +32,18 @@ export default function BookingSuccessContent() {
     if (!sessionUser || !sessionId) return;
 
     const fetchReceipt = async () => {
+
+      const { data: tokenData } = await authClient.token();
+
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/bookings/receipt?session_id=${sessionId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${tokenData?.token}`,
+            },
+          },
         );
         if (res.ok) {
           const data = await res.json();

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
+import { authClient } from "@/lib/auth-client";
 
 export default function ManageTrainersPage() {
   const [trainers, setTrainers] = useState([]);
@@ -16,10 +17,19 @@ export default function ManageTrainersPage() {
   const [page, setPage] = useState(1);
 
   const fetchTrainers = async () => {
+
+     const { data: tokenData } = await authClient.token();
+
     setLoading(true);
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/trainers?page=${page}&limit=4`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
+        },
       );
       if (!res.ok) throw new Error("Could not pull network context records.");
       const data = await res.json();
@@ -47,11 +57,17 @@ export default function ManageTrainersPage() {
 
     if (!confirmSystem) return;
 
+     const { data: tokenData } = await authClient.token();
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/trainers/${trainer._id}/demote`,
         {
           method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
         },
       );
       const data = await res.json();

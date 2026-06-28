@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+// import { authClient } from "@/lib/auth-client";
 
 const CATEGORIES = [
   "All Categories",
@@ -19,7 +20,6 @@ export default function ClassesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Extract current values from URL or use defaults
   const currentSearch = searchParams.get("search") || "";
   const currentCategory = searchParams.get("category") || "All Categories";
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
@@ -29,12 +29,10 @@ export default function ClassesContent() {
   const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState(currentSearch);
 
-  // Synchronize internal input value with URL changes
   useEffect(() => {
     setSearchInput(currentSearch);
   }, [currentSearch]);
 
-  // Fetch data whenever URL query parameters change
   useEffect(() => {
     const fetchClasses = async () => {
       setLoading(true);
@@ -63,7 +61,6 @@ export default function ClassesContent() {
     fetchClasses();
   }, [currentSearch, currentCategory, currentPage]);
 
-  // Helper helper to update multiple URL parameters safely
   const updateUrl = (updates) => {
     const params = new URLSearchParams(searchParams.toString());
     Object.entries(updates).forEach(([key, value]) => {
@@ -73,11 +70,11 @@ export default function ClassesContent() {
         params.delete(key);
       }
     });
-    router.push(`/classes?${params.toString()}`); // Adjust path name if needed
+    router.push(`/classes?${params.toString()}`);
   };
 
   const handleCategoryChange = (category) => {
-    updateUrl({ category, page: "1" }); // Reset to page 1 on filter switch
+    updateUrl({ category, page: "1" });
   };
 
   const handleSearchSubmit = (e) => {
@@ -104,7 +101,6 @@ export default function ClassesContent() {
         </p>
       </div>
 
-      {/* Search Bar Form Component */}
       <form
         onSubmit={handleSearchSubmit}
         className="max-w-2xl mx-auto mb-8 relative"

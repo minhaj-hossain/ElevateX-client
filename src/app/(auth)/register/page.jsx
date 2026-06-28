@@ -13,7 +13,6 @@ import {
 import { GiBottledBolt } from "react-icons/gi";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
-// 1 line: Import your reusable utility block
 import { uploadImageToImgBB } from "@/utils/uploadImage";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
@@ -44,17 +43,17 @@ export default function Register() {
     const password = e.target.elements.password.value;
 
     try {
-      // 2 lines: Reusably call your utility loop and receive the final destination URL
+   
       const finalUploadedUrl = await uploadImageToImgBB(avatarFile);
       if (avatarFile && !finalUploadedUrl)
         throw new Error("Image upload pipeline dropped.");
 
-      console.log("Form Submitted to Database:", {
-        fullName,
-        email,
-        password,
-        image: finalUploadedUrl || "No image uploaded",
-      });
+      // console.log("Form Submitted to Database:", {
+      //   fullName,
+      //   email,
+      //   password,
+      //   image: finalUploadedUrl || "No image uploaded",
+      // });
 
       await authClient.signUp.email(
         {

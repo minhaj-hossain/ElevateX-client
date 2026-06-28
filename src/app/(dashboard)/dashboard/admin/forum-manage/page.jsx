@@ -1,5 +1,6 @@
 "use client";
 
+import { authClient } from "@/lib/auth-client";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
@@ -13,13 +14,20 @@ export default function ForumPostManagePage() {
   });
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [filter, setFilter] = useState("all"); // "all" | "flagged"
+  const [filter, setFilter] = useState("all");
 
   const fetchForumPosts = async () => {
+    const { data: tokenData } = await authClient.token();
     setLoading(true);
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/forum-posts?page=${page}&limit=4&filter=${filter}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
+        },
       );
       if (!res.ok) throw new Error("Could not pull network moderation logs.");
       const data = await res.json();
@@ -37,7 +45,7 @@ export default function ForumPostManagePage() {
   };
 
   useEffect(() => {
-    setPage(1); // Reset back to first page when changing filters
+    setPage(1);
   }, [filter]);
 
   useEffect(() => {
@@ -50,11 +58,17 @@ export default function ForumPostManagePage() {
     );
     if (!confirmPurge) return;
 
+    const { data: tokenData } = await authClient.token();
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/forum-posts/${postId}`,
         {
           method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
         },
       );
       const data = await res.json();
@@ -97,7 +111,7 @@ export default function ForumPostManagePage() {
 
           {/* Metric Cards Top Layout */}
           <div className="flex gap-3">
-            <div className="bg-[#121214] border border-zinc-900 rounded-lg py-2 px-5 text-center min-w-[110px]">
+            <div className="bg-[#121214] border border-zinc-900 rounded-lg py-2 px-5 text-center min-w-27.5">
               <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block">
                 Total Posts
               </span>
@@ -105,7 +119,7 @@ export default function ForumPostManagePage() {
                 {loading ? "..." : metrics.totalPosts.toLocaleString()}
               </span>
             </div>
-            <div className="bg-[#121214] border border-zinc-900 rounded-lg py-2 px-5 text-center min-w-[110px]">
+            <div className="bg-[#121214] border border-zinc-900 rounded-lg py-2 px-5 text-center min-w-27.5">
               <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block">
                 Flagged
               </span>

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 export default function LatestForumPostsSection() {
   const router = useRouter();
@@ -10,10 +11,17 @@ export default function LatestForumPostsSection() {
 
   useEffect(() => {
     const fetchLatestPosts = async () => {
+      const { data: tokenData } = await authClient.token();
+
       try {
-        // Requesting the top 4 most recent posts from the Express API
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/forum-posts/latest?limit=4`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${tokenData?.token}`,
+            },
+          },
         );
         if (!res.ok) throw new Error("Failed to load community insights");
         const data = await res.json();

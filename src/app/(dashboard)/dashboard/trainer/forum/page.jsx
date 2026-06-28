@@ -18,17 +18,23 @@ export default function ForumManagement() {
   const { data: session } = authClient.useSession();
   const trainerId = session?.user?.id;
 
-
   useEffect(() => {
     const fetchTrainerPosts = async () => {
-      // If session is checked and no user id is found, stop loading
       if (!trainerId) {
         return;
       }
 
+      const { data: tokenData } = await authClient.token();
+
       try {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/getTrainerPosts/${trainerId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${tokenData?.token}`,
+            },
+          },
         );
         const data = await response.json();
         setPosts(data);
@@ -47,30 +53,35 @@ export default function ForumManagement() {
       setLoading(false);
     }
   }, [trainerId, session]);
-  
+
   const openDeleteModal = (id) => {
     setSelectedPostId(id);
     setIsModalOpen(true);
   };
 
-  // 1. Update your handleDelete function to close the modal on success:
   const handleDelete = async (postId) => {
-    // if (!postId) return;
-    console.log(postId);
+    if (!postId) return;
+    // console.log(postId);
+
+    const { data: tokenData } = await authClient.token();
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deletePost/${postId}`,
         {
           method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
         },
       );
 
       if (response.ok) {
-        // Remove from UI state immediately
         setPosts((prevPosts) =>
           prevPosts.filter((post) => post._id !== postId),
         );
-        // Close modal and reset tracking state
+
         setIsModalOpen(false);
         setSelectedPostId(null);
       }
@@ -79,7 +90,7 @@ export default function ForumManagement() {
     }
   };
 
-  console.log("Posts state:", posts);
+  // console.log("Posts state:", posts);
 
   if (loading) {
     return (

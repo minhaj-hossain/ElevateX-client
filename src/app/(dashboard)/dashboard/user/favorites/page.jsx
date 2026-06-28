@@ -41,9 +41,18 @@ export default function FavoriteClassesPage() {
   // 2. Fetch user's saved favorites
   const fetchFavorites = async () => {
     if (!sessionUser?.email) return;
+
+    const { data: tokenData } = await authClient.token();
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/favorites?email=${sessionUser.email}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
+        },
       );
       if (res.ok) {
         const data = await res.json();
@@ -66,12 +75,17 @@ export default function FavoriteClassesPage() {
   const handleRemoveFavorite = async (classId) => {
     if (!sessionUser?.email) return;
 
+    const { data: tokenData } = await authClient.token();
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/favorites/toggle`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
           body: JSON.stringify({ email: sessionUser.email, classId }),
         },
       );
